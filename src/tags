@@ -1,0 +1,56 @@
+MtclAppInit	tclAppInit.c	/^main(argc, argv)$/
+TCL_VARARGS_DEF	winMain.c	/^WishPanic TCL_VARARGS_DEF(char *,arg1)$/
+Tcl_AppInit	tclAppInit.c	/^Tcl_AppInit(interp)$/
+Tkema_Init	tkema.c	/^TCL_API int Tkema_Init(Tcl_Interp *interp){$/
+WinMain	winMain.c	/^WinMain(hInstance, hPrevInstance, lpszCmdLine, nCm/
+_ANSI_ARGS_	winMain.c	/^static void		WishPanic _ANSI_ARGS_(TCL_VARARGS(cha/
+diddle_stdout	tkema.c	/^static FILE *diddle_stdout()$/
+hash_init	tkema.c	/^static int hash_init()$/
+hash_lookup	tkema.c	/^static int hash_lookup(char *key)$/
+never_call_me	tkema.c	/^static void never_call_me()$/
+setargv	tclAppInit.c	/^setargv(argcPtr, argvPtr)$/
+tkEma_Attr_Make	tkema.c	/^static int tkEma_Attr_Make(ClientData clientData, /
+tkEma_Const	tkema.c	/^static int tkEma_Const(ClientData clientData,$/
+tkEma_Init	tkema.c	/^static int tkEma_Init(ClientData clientData, Tcl_I/
+tkEma_Model_Attr_Add	tkema.c	/^static int tkEma_Model_Attr_Add(ClientData clientD/
+tkEma_Model_Attr_Get	tkema.c	/^static int tkEma_Model_Attr_Get(ClientData clientD/
+tkEma_Model_Attr_Info	tkema.c	/^static int tkEma_Model_Attr_Info(ClientData client/
+tkEma_Model_Attr_Nth	tkema.c	/^static int tkEma_Model_Attr_Nth(ClientData clientD/
+tkEma_Model_Attr_Print	tkema.c	/^static int tkEma_Model_Attr_Print(ClientData clien/
+tkEma_Model_Attr_Set	tkema.c	/^static int tkEma_Model_Attr_Set(ClientData clientD/
+tkEma_Model_Base_Print	tkema.c	/^static int tkEma_Model_Base_Print(ClientData clien/
+tkEma_Model_Code_Gen	tkema.c	/^static int tkEma_Model_Code_Gen(ClientData clientD/
+tkEma_Model_Copy	tkema.c	/^static int tkEma_Model_Copy(ClientData clientData,/
+tkEma_Model_Create	tkema.c	/^static int tkEma_Model_Create(ClientData clientDat/
+tkEma_Model_Destroy	tkema.c	/^static int tkEma_Model_Destroy(ClientData clientDa/
+tkEma_Model_Num_Objects	tkema.c	/^static int tkEma_Model_Num_Objects(ClientData clie/
+tkEma_Model_Print	tkema.c	/^static int tkEma_Model_Print(ClientData clientData/
+tkEma_Model_Read	tkema.c	/^static int tkEma_Model_Read(ClientData clientData,/
+tkEma_Model_Write	tkema.c	/^static int tkEma_Model_Write(ClientData clientData/
+tkEma_Object_Attr_Add	tkema.c	/^static int tkEma_Object_Attr_Add(ClientData client/
+tkEma_Object_Attr_Get	tkema.c	/^static int tkEma_Object_Attr_Get(ClientData client/
+tkEma_Object_Attr_Info	tkema.c	/^static int tkEma_Object_Attr_Info(ClientData clien/
+tkEma_Object_Attr_Nth	tkema.c	/^static int tkEma_Object_Attr_Nth(ClientData client/
+tkEma_Object_Attr_Print	tkema.c	/^static int tkEma_Object_Attr_Print(ClientData clie/
+tkEma_Object_Attr_Set	tkema.c	/^static int tkEma_Object_Attr_Set(ClientData client/
+tkEma_Object_Copy	tkema.c	/^static int tkEma_Object_Copy(ClientData clientData/
+tkEma_Object_Create	tkema.c	/^static int tkEma_Object_Create(ClientData clientDa/
+tkEma_Object_Destroy	tkema.c	/^static int tkEma_Object_Destroy(ClientData clientD/
+tkEma_Object_Get	tkema.c	/^static int tkEma_Object_Get(ClientData clientData,/
+tkEma_Object_Move	tkema.c	/^static int tkEma_Object_Move(ClientData clientData/
+tkEma_Object_Nth	tkema.c	/^static int tkEma_Object_Nth(ClientData clientData,/
+tkEma_Object_Print	tkema.c	/^static int tkEma_Object_Print(ClientData clientDat/
+tkEma_Object_Prom_Attr_Set	tkema.c	/^static int tkEma_Object_Prom_Attr_Set(ClientData c/
+tkEma_Object_Store	tkema.c	/^static int tkEma_Object_Store(ClientData clientDat/
+tkEma_Vos_Textlist_Append	tkema.c	/^static int tkEma_Vos_Textlist_Append(ClientData cl/
+tkEma_Vos_Textlist_Copy	tkema.c	/^static int tkEma_Vos_Textlist_Copy(ClientData clie/
+tkEma_Vos_Textlist_Create	tkema.c	/^static int tkEma_Vos_Textlist_Create(ClientData cl/
+tkEma_Vos_Textlist_Destroy	tkema.c	/^static int tkEma_Vos_Textlist_Destroy(ClientData c/
+tkEma_Vos_Textlist_Line_Count	tkema.c	/^static int tkEma_Vos_Textlist_Line_Count(ClientDat/
+tkEma_Vos_Textlist_Line_Get	tkema.c	/^static int tkEma_Vos_Textlist_Line_Get(ClientData /
+tkEma_Vos_Textlist_Line_Set	tkema.c	/^static int tkEma_Vos_Textlist_Line_Set(ClientData /
+tkEma_Vos_Textlist_Print	tkema.c	/^static int tkEma_Vos_Textlist_Print(ClientData cli/
+tkEma_errchk	tkema.c	/^static int tkEma_errchk(Tcl_Obj *resultPtr)$/
+tkEma_prg_list_create	tkema.c	/^static int tkEma_prg_list_create(ClientData client/
+tkEma_prg_list_strings_append	tkema.c	/^static int tkEma_prg_list_strings_append(ClientDat/
+undiddle_stdout	tkema.c	/^static FILE *undiddle_stdout(FILE *tmpfp)$/

@@ -1,0 +1,19 @@
+#! /bin/sh
+#
+#	$Id: make_index,v 1.2 2001/06/07 21:29:05 ted Exp $
+#
+echo '<html>' > /tmp/ht$$
+echo '<title>tkEma Functions</title>' >> /tmp/ht$$
+echo '<head><center><h1>tkEma Function List</h1></center></head>' >> /tmp/ht$$
+echo '<body><center>' >> /tmp/ht$$
+
+for i in `ls *.html`
+do
+	base=`echo $i | awk -F. '{print $1}'`
+	echo '<p><a href="'$i'">'$base'</a></p>' >> /tmp/ht$$
+done
+
+echo '</center></body>' >> /tmp/ht$$
+echo '</html>' >> /tmp/ht$$
+
+mv /tmp/ht$$ index.html

@@ -1,0 +1,26 @@
+.\"$Id: Vos_Textlist_Print.n,v 1.1 1999/05/08 19:31:28 prog Exp $	TN
+.TH Vos_Textlist_Print n "$Id: Vos_Textlist_Print.n,v 1.1 1999/05/08 19:31:28 prog Exp $"
+.SH NAME
+Vos_Textlist_Print \- Print the Given Textlist to Standard Output
+.SH SYNOPSIS
+.B Vos_Textlist_Print
+textlist_id
+.SH DESCRIPTION
+.LP
+The
+\fBVos_Textlist_Print\fP
+command is used to wrap the Opnet library Vos_Textlist_Print()
+function.
+It will print
+the given Textlist to stdout.
+.SH OPERANDS
+.LP
+\fBtextlist_id\fP is the Textlist ID of the Textlist to be printed.
+.SH RETURN VALUE
+\fBVos_Textlist_Print\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Vos_Textlist_Print() somewhere in the Modeler Manual
+.SH BUGS
+It would be nice to be able to specify the descriptor to print to, but
+that's not how Vos_Textlist_Print() works.

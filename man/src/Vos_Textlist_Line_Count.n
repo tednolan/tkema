@@ -1,0 +1,25 @@
+.\"$Id: Vos_Textlist_Line_Count.n,v 1.1 1999/05/08 19:31:27 prog Exp $	TN
+.TH Vos_Textlist_Line_Count n "$Id: Vos_Textlist_Line_Count.n,v 1.1 1999/05/08 19:31:27 prog Exp $"
+.SH NAME
+Vos_Textlist_Line_Count \- Count the Lines in the Given Textlist
+.SH SYNOPSIS
+.B Vos_Textlist_Line_Count
+textlist_id
+.SH DESCRIPTION
+.LP
+The
+\fBVos_Textlist_Line_Count\fP
+command is used to wrap the Opnet library Vos_Textlist_Line_Count()
+function.
+It will return a count of the lines in
+the given Textlist.
+.SH OPERANDS
+.LP
+\fBtextlist_id\fP is the Textlist ID of the Textlist in which to count lines.
+.SH RETURN VALUE
+On success \fBVos_Textlist_Line_Count\fP returns an integer line count.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Vos_Textlist_Line_Count() somewhere in the Modeler Manual
+.SH BUGS
+None Known

@@ -1,0 +1,28 @@
+.\"$Id: prg_list_strings_append.n,v 1.1 1999/05/08 19:31:29 prog Exp $	TN
+.TH prg_list_strings_append n "$Id: prg_list_strings_append.n,v 1.1 1999/05/08 19:31:29 prog Exp $"
+.SH NAME
+prg_list_strings_append \- Append a String to a List
+.SH SYNOPSIS
+.B prg_list_strings_append
+list_id string
+.SH DESCRIPTION
+.LP
+The \fBprg_list_strings_append\fP command wraps the OPNET prg_list_strings_append()
+function.
+.LP
+The \fBprg_list_strings_append\fP
+command appends a string to the given list.
+.SH OPERANDS
+.LP
+\fBlist_id\fP is the ID returned by \fBprg_list_create\fP.
+.LP
+\fBstring\fP is the string to append to the list.
+.SH RETURN VALUE
+\fBPrg_List_Create\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+prg_list_strings_append() Chapter Plib in the Modeler Manual
+.SH BUGS
+As the name suggests, the OPNET prg_list_strings_append() function
+can handle more than one string at a time.
+The \fBprg_list_strings_append\fP command can not.

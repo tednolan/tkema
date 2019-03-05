@@ -1,0 +1,20 @@
+.\"$Id: Vos_Textlist_Create.n,v 1.1 1999/05/08 19:31:26 prog Exp $	TN
+.TH Vos_Textlist_Create n "$Id: Vos_Textlist_Create.n,v 1.1 1999/05/08 19:31:26 prog Exp $"
+.SH NAME
+Vos_Textlist_Create \- Create an empty Textlist
+.SH SYNOPSIS
+.B Vos_Textlist_Create
+.SH DESCRIPTION
+.LP
+The \fBVos_Textlist_Create\fP command wraps the OPNET Vos_Textlist_Create()
+function.
+.LP
+The \fBVos_Textlist_Create\fP
+command is to create a new, empty Textlist.
+.SH RETURN VALUE
+On success \fBVos_Textlist_Create\fP returns a Textlist ID.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Vos_Textlist_Create() somewhere in the Modeler Manual
+.SH BUGS
+None Known

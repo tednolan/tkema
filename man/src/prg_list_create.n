@@ -1,0 +1,20 @@
+.\"$Id: prg_list_create.n,v 1.1 1999/05/08 19:31:28 prog Exp $	TN
+.TH prg_list_create n "$Id: prg_list_create.n,v 1.1 1999/05/08 19:31:28 prog Exp $"
+.SH NAME
+prg_list_create \- Create an empty list
+.SH SYNOPSIS
+.B prg_list_create
+.SH DESCRIPTION
+.LP
+The \fBprg_list_create\fP command wraps the OPNET prg_list_create()
+function.
+.LP
+The \fBprg_list_create\fP
+command is to create a new, empty list.
+.SH RETURN VALUE
+On success \fBPrg_List_Create\fP returns a list ID.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+prg_list_create() Chapter Plib in the Modeler Manual
+.SH BUGS
+None Known

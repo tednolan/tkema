@@ -1,0 +1,10 @@
+#! /bin/sh
+#
+#	$Id: make_html,v 1.2 2001/06/07 21:29:05 ted Exp $
+#
+for i
+do
+	base=`basename $i`
+	base=`echo $base | awk -F. '{print $1}'`
+	troff2html -man $i > ${base}.html
+done

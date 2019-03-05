@@ -1,0 +1,28 @@
+.\"$Id: Ema_Object_Get.n,v 1.1 1999/05/08 19:31:24 prog Exp $	TN
+.TH Ema_Object_Get n "$Id: Ema_Object_Get.n,v 1.1 1999/05/08 19:31:24 prog Exp $"
+.SH NAME
+Ema_Object_Get \- Get an object by name
+.SH SYNOPSIS
+.B Ema_Object_Get
+name
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Object_Get\fP
+command does not wrap any specific OPNET EMA function.
+.LP
+\fBEma_Object_Get\fP returns an EMA object ID given the \*Qname\*U
+of the object as earlier established by \fBEma_Object_Store\fP.
+This name is purely a construct of the application and has no meaning
+at the EMA level.
+.SH OPERANDS
+.LP
+\fBname\fP is the name under which the object was stored.
+.SH RETURN VALUE
+If successful
+\fBEma_Object_Get\fP returns the EMA object ID of the requested object.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+\fBEma_Object_Store\fP
+.SH BUGS
+None Known

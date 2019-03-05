@@ -1,0 +1,38 @@
+$Id: README,v 1.1 2001/05/31 21:26:25 ted Exp $
+
+Here are some sample TkEMA scripts.
+They all contain the line:
+
+	lappend auto_path ./lib
+
+which you will have to adjust to specify where you have placed the TkEMA
+shared library if you install them elsewhere.
+
+Remember, specify models without the .nt.m or pr.m suffixes.
+
+doit -
+	Build a network from an SDF and predefined platforms.
+	Seems to be fragmentary 
+
+net_build -
+	Seems to be another build a net from SDF program.  Wish
+	I remembered..
+
+ped -
+	GUI based editor for Opnet process models
+
+print_plat -
+	Given a network name and the name of a mobile subnet, print all
+	the attribute information for the subnet
+
+proc_dump -
+	Given a process model name, extract the C code from the model
+	into a directory with the same name as the model
+
+proc_load -
+	Undo a proc_load, take the C code in a diectory with the same name
+	as a model, and stuff it back in the model.
+
+pview  -
+	Display a process model on screen.  Allow saving or printing an
+	encapsulated PostScript representation of the model

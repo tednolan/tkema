@@ -1,0 +1,34 @@
+.\"$Id: Ema_Object_Prom_Attr_Set.n,v 1.2 2001/06/12 17:58:07 ted Exp $	TN
+.TH Ema_Object_Prom_Attr_Set n "$Id: Ema_Object_Prom_Attr_Set.n,v 1.2 2001/06/12 17:58:07 ted Exp $"
+.SH NAME
+Ema_Object_Prom_Attr_Set \- Set a Promoted Object Attribute
+.SH SYNOPSIS
+.B Ema_Object_Prom_Attr_Set
+model_id object_id attr_name attr_properties
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Object_Prom_Attr_Set\fP
+command is used to wrap the Opnet EMA library Ema_Object_Prom_Attr_Set()
+function.  It will set the value of an attribute promoted from a lower
+level.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is an EMA model identifier, for example, one returned by
+\fBEma_Model_Read\fP.
+.LP
+\fBobject_id\fP is the EMA ID of the object whose promoted
+attribute is to be set.
+.LP
+\fBattr_name\fP is a string giving the name of the attribute to be set.
+.LP
+\fBattr_properties\fP is the EMA object ID for a previously created
+properties object
+.SH RETURN VALUE
+\fBEma_Object_Prom_Attr_Set\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Object_Prom_Attr_Set() in Chapter EMA of the Modeler Manual
+.SH BUGS
+The whole area of promoted attributes is hard to understand at the EMA
+level.

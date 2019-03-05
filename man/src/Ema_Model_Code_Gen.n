@@ -1,0 +1,32 @@
+.\"$Id: Ema_Model_Code_Gen.n,v 1.1 1999/05/08 19:31:19 prog Exp $	TN
+.TH Ema_Model_Code_Gen n "$Id: Ema_Model_Code_Gen.n,v 1.1 1999/05/08 19:31:19 prog Exp $"
+.SH NAME
+Ema_Model_Code_Gen \- Suck the EMA From a Model and Into a File
+.SH SYNOPSIS
+.B Ema_Model_Code_Gen
+model_id model_name
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Code_Gen\fP
+command is used to wrap the Opnet EMA library Ema_Model_Code_Gen()
+function.
+It will \*Qsuck\*U the EMA C code from the given model and save it to a
+named output file.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is an EMA model identifier, for example, one returned by
+\fBEma_Model_Read\fP.
+.LP
+\fBmodel_name\fP is a string specifying the base name of the file to save
+the EMA code to.
+.SH RETURN VALUE
+\fBEma_Model_Code_Gen\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Code_Gen() in Chapter EMA of the Modeler Manual
+.SH BUGS
+\fBEma_Model_Code_Gen\fP would be much nicer if you could specify the
+complete file name, and the directory in which it should be created,
+but Ema_Model_Code_Gen() doesn't work that way.
+That's life in the big city.

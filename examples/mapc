@@ -1,0 +1,118 @@
+#! /bin/sh
+#
+#	$Id: mapc,v 1.3 1998/10/12 12:06:05 prog Exp $	TN
+#
+# Format of a map input file:
+#
+# country
+# 1
+# 	lat lon
+#	lat lon
+#	... ...
+# END
+# 2
+#	lat lon
+#	... ...
+# END
+# END
+#
+# (There may not be multiple sections)
+#	
+# run tclsh from the users PATH \
+exec tclsh "$0" ${1+"$@"}
+#
+# Cross-platform setup
+#
+set nwbase $env(NW_BASE)
+source "$nwbase/lib/nwstartup.tcl"
+
+lappend auto_path .
+lappend auto_path ..
+package require Tkema
+
+proc make_seg {model_id lat_list lon_list} {
+
+	set line [Ema_Object_Create $model_id OBJ_CDS_LINE]
+
+	Ema_Object_Attr_Set $model_id $line \
+		"latitude" EMAC_INTEGER COMP_DVEC_SIZE [llength $lat_list]
+	Ema_Object_Attr_Set $model_id $line \
+		"longitude" EMAC_INTEGER COMP_DVEC_SIZE [llength $lon_list]
+
+	for {set i 0} {$i < [llength $lat_list]} {incr i} {
+
+		set lat [lindex $lat_list $i]
+		set lon [lindex $lon_list $i]
+
+		puts "lat ($lat) lon ($lon)"
+
+		Ema_Object_Attr_Set $model_id $line \
+			"latitude" EMAC_DOUBLE COMP_DVEC_CONTENTS $i $lat
+
+		Ema_Object_Attr_Set $model_id $line \
+			"longitude" EMAC_DOUBLE COMP_DVEC_CONTENTS $i $lon
+
+	}
+}
+
+Ema_Init
+
+set model_id [Ema_Model_Create MOD_CARTO ]
+
+for {set i 0} { $i < $argc} {incr i} {
+
+	set lat_list [list]
+	set lon_list [list]
+
+	set infile [open [lindex $argv $i] r ]
+
+	if {[ gets $infile buf ] >= 0 } {
+		set country $buf
+		puts "Country ($buf)"
+	} else {
+		error "bad map file country format"
+	}
+
+	while { [gets $infile buf] >= 0 } {
+
+		switch -glob -- $buf {
+			{[0-9]*} {
+				puts "segment $buf"
+				#
+				# Skip centroid
+				#
+				gets $infile buf
+				while { [gets $infile buf] >= 0 } {
+					switch -glob -- $buf {
+						END {
+							make_seg $model_id \
+							   $lat_list $lon_list
+
+							set lat_list [list]
+							set lon_list [list]
+							break
+						}
+						default {
+							scan $buf \
+								"%f %f" lon lat
+							lappend lat_list $lat
+							lappend lon_list $lon
+						}
+					}
+				}
+
+			}
+			END {
+				puts "end data"
+				close $infile
+				break
+			}
+			default {
+				error "Unexpected input ($buf)"
+			}
+		}
+	}
+}
+
+Ema_Model_Write $model_id foo
+exit

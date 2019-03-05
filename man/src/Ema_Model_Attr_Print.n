@@ -1,0 +1,39 @@
+.\"$Id: Ema_Model_Attr_Print.n,v 1.2 2001/06/12 21:08:00 ted Exp $	TN
+.TH Ema_Model_Attr_Print n "$Id: Ema_Model_Attr_Print.n,v 1.2 2001/06/12 21:08:00 ted Exp $"
+.SH NAME
+Ema_Model_Attr_Print \- Print a Model Attribute to Stdout or a Tcl string
+.SH SYNOPSIS
+.B Ema_Model_Attr_Print
+model_id attr_name [tclresult]
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Attr_Print\fP
+command is used to wrap the Opnet EMA library Ema_Model_Attr_Print()
+function.  It will print the value of the given model attribute to
+standard output, or with the optional "list" argument to a Tcl string.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is an EMA model identifier, for example, one returned by
+\fBEma_Model_Read\fP.
+.LP
+\fBattr_name\fP is a string giving the name of the attribute to be printed.
+whose name is being queried.
+.LP
+\fBtclresult\fP is an optional argument.  If this argument is present then
+the result of \fBEma_Model_Attr_Print\fP will be returned as a string
+result from the Tcl command.
+The value of this argument is not checked, just whether it is present or not.
+.SH RETURN VALUE
+\fBEma_Model_Attr_Print\fP returns no assignable value
+unless the optional last arguement is present, then it
+will return as a string what would otherwise have been
+printed to stdout.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Attr_Print() in Chapter EMA of the Modeler Manual
+.SH BUGS
+Getting output to a string requires some ugly
+manipulation of stdout at the C level.
+They should have just built the function to take a
+file descriptior for the get-go.

@@ -1,0 +1,26 @@
+.\"$Id: Ema_Object_Destroy.n,v 1.1 1999/05/08 19:31:23 prog Exp $	TN
+.TH Ema_Object_Destroy n "$Id: Ema_Object_Destroy.n,v 1.1 1999/05/08 19:31:23 prog Exp $"
+.SH NAME
+Ema_Object_Destroy \- Destroy an Object
+.SH SYNOPSIS
+.B Ema_Object_Destroy
+model_id object_id
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Object_Destroy\fP
+command is used to wrap the Opnet EMA library Ema_Object_Destroy()
+function.
+It will destroy the given EMA object.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is the EMA ID of the model containing the object.
+.LP
+\fBobject_id\fP is the EMA ID of the object to be destroyed.
+.SH RETURN VALUE
+\fBEma_Object_Destroy\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Object_Destroy() in Chapter EMA of the Modeler Manual
+.SH BUGS
+None Known

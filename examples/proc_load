@@ -1,0 +1,82 @@
+#!/usr/local/bin/wish -f
+#
+#	@(#)proc_load	1.2	01/23/98	TN
+#
+#lappend auto_path /usr/local/src/SRI/NETWARSB2/lib
+lappend auto_path ./lib
+package require Tkema
+
+proc load_model_code {modid attr_name trailer mod_name} {
+	
+	set textlist [Vos_Textlist_Create]
+	Ema_Model_Attr_Set $modid $attr_name EMAC_INTEGER \
+		COMP_CONTENTS $textlist
+
+	set file_name ${mod_name}_${trailer}
+	set fileid [open $file_name r]
+
+	while { [gets $fileid line ] >= 0} {
+		Vos_Textlist_Append $textlist $line
+	}
+	close $fileid
+}
+
+proc load_state_code { modid state mod_name} {
+
+	set state_name [Ema_Object_Attr_Get $modid $state "name" \
+		EMAC_STRING COMP_CONTENTS]
+
+	set textlist [Vos_Textlist_Create]
+	Ema_Object_Attr_Set $modid $state "enter execs" \
+		EMAC_INTEGER COMP_CONTENTS $textlist
+
+	set file_name ${mod_name}_${state_name}_enter.c
+	set fileid [open $file_name r]
+	while { [gets $fileid line ] >= 0} {
+		Vos_Textlist_Append $textlist $line
+	}
+	close $fileid
+
+	set textlist [Vos_Textlist_Create]
+	Ema_Object_Attr_Set $modid $state "exit execs" \
+		EMAC_INTEGER COMP_CONTENTS $textlist
+
+	set file_name ${mod_name}_${state_name}_exit.c
+	set fileid [open $file_name r]
+	while { [gets $fileid line ] >= 0} {
+		Vos_Textlist_Append $textlist $line
+	}
+	close $fileid
+}
+
+	
+	
+Ema_Init
+
+set mod_name [lindex $argv 0]
+
+set modid [ Ema_Model_Read MOD_PROCESS $mod_name]
+
+set pwd [pwd]
+cd $mod_name
+
+load_model_code $modid "state vars" "state_vars" $mod_name
+load_model_code $modid "temp vars" "temp_vars" $mod_name
+load_model_code $modid "header block" "header_block" $mod_name
+load_model_code $modid "function block" "function_block" $mod_name
+load_model_code $modid "diag block" "diag_block" $mod_name
+load_model_code $modid "termination block" "termination_block" $mod_name
+load_model_code $modid "child processes" "child_processes" $mod_name
+
+
+set numproc [Ema_Model_Num_Objects $modid OBJ_PR_STATE]
+
+for {set i 0} {$i < $numproc } {incr i 1} {
+	set state [ Ema_Object_Nth $modid OBJ_PR_STATE $i]
+	load_state_code $modid $state $mod_name
+}
+
+cd $pwd
+Ema_Model_Write $modid $mod_name
+
+exit

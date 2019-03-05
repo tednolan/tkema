@@ -1,0 +1,40 @@
+.\"$Id: Ema_Object_Attr_Info.n,v 1.1 2001/06/12 17:56:21 ted Exp $
+.TH Ema_Object_Attr_Print n "$Id: Ema_Object_Attr_Info.n,v 1.1 2001/06/12 17:56:21 ted Exp $"
+.SH NAME
+Ema_Object_Attr_Info \- Return a Tcl key/value list of attribute information
+.SH SYNOPSIS
+.B Ema_Object_Attr_Info
+model_id object_id attr_name
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Object_Attr_Info\fP
+does not directly wrap any Opnet EMA library function.
+Instead it calls the Opnet Ema_Object_Attr_Print function, which
+normally renders onto stdout, captures the information and returns
+a Tcl list of key/value information for the attribute.
+.LP
+This list is suitable for use in an \fBarray set\fP command.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is an EMA model identifier, for example, one returned by
+\fBEma_Model_Read\fP.
+.LP
+\fBobject_id\fP is the EMA ID of the object containing the attribute to
+be queried.
+.LP
+\fBattr_name\fP is a string giving the name of the attribute to be queried.
+.SH RETURN VALUE
+\fBEma_Object_Attr_Info\fP returns a Tcl list or
+on an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Object_Attr_Print() in Chapter EMA of the Modeler Manual
+.SH BUGS
+For this command to work, it must play tricks with the
+\fBstdout\fP stream at the C level.
+This may cause problems with redirection, especially
+on NT.
+.LP
+Since this command internally parses the output of
+Ema_Object_Attr_Print(), if the format of this output
+changes, this command will become confused.

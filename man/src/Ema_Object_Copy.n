@@ -1,0 +1,27 @@
+.\"$Id: Ema_Object_Copy.n,v 1.2 2001/06/12 17:58:07 ted Exp $	TN
+.TH Ema_Object_Copy n "$Id: Ema_Object_Copy.n,v 1.2 2001/06/12 17:58:07 ted Exp $"
+.SH NAME
+Ema_Object_Copy \- Create a New Object as a Copy of Another
+.SH SYNOPSIS
+.B Ema_Object_Copy
+model_id object_id
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Object_Copy\fP
+command is used to wrap the Opnet EMA library Ema_Object_Copy()
+function.
+It will create a new object as an exact copy of the given one.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is an EMA model identifier, for example, one returned by
+\fBEma_Model_Read\fP.
+.LP
+\fBobject_id\fP is the EMA ID of the object to be copied.
+.SH RETURN VALUE
+\fBEma_Object_Copy\fP returns the \fIobject_id\fP of the new object.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Object_Copy() in Chapter EMA of the Modeler Manual
+.SH BUGS
+None known

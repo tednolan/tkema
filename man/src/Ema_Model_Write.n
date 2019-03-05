@@ -1,0 +1,28 @@
+.\"$Id: Ema_Model_Write.n,v 1.1 1999/05/08 19:31:21 prog Exp $	TN
+.TH Ema_Model_Write n "$Id: Ema_Model_Write.n,v 1.1 1999/05/08 19:31:21 prog Exp $"
+.SH NAME
+Ema_Model_Write \- Write a Model to a File
+.SH SYNOPSIS
+.B Ema_Model_Write
+model_id model_name
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Write\fP
+command is used to wrap the Opnet EMA library Ema_Model_Write()
+function.
+It will write an EMA model to the given file.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is the EMA ID of the model to be written.
+.LP
+\fBmodel_name\fP is a string designating the base name of the file to
+write the model to.
+(Standard OPNET path processing is done.)
+.SH RETURN VALUE
+\fBEma_Model_Write\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Write() in Chapter EMA of the Modeler Manual
+.SH BUGS
+It would be nice to be able to turn off OPNET path processing.

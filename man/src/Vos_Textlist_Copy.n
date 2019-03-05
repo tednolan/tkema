@@ -1,0 +1,25 @@
+.\"$Id: Vos_Textlist_Copy.n,v 1.1 1999/05/08 19:31:26 prog Exp $	TN
+.TH Vos_Textlist_Copy n "$Id: Vos_Textlist_Copy.n,v 1.1 1999/05/08 19:31:26 prog Exp $"
+.SH NAME
+Vos_Textlist_Copy \- Create a Textlist as a copy of Another
+.SH SYNOPSIS
+.B Vos_Textlist_Copy
+textlist_id
+.SH DESCRIPTION
+.LP
+The
+\fBVos_Textlist_Copy\fP
+command is used to wrap the Opnet library Vos_Textlist_Copy()
+function.
+It will create a new Textlist as a copy
+of the given Textlist.
+.SH OPERANDS
+.LP
+\fBtextlist_id\fP is the Textlist ID of the Textlist to be copied.
+.SH RETURN VALUE
+On success \fBVos_Textlist_Copy\fP returns a Textlist ID.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Vos_Textlist_Copy() somewhere in the Modeler Manual
+.SH BUGS
+None Known

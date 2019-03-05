@@ -1,0 +1,28 @@
+.\"$Id: Ema_Init.n,v 1.1 1999/05/08 19:31:17 prog Exp $	TN
+.TH Ema_Init n "$Date: 1999/05/08 19:31:17 $"
+.SH NAME
+Ema_Init \- Initialize EMA
+.SH SYNOPSIS
+.B Ema_Init [arg..]
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Init\fP
+command is used to wrap the Opnet EMA library Ema_Init()
+function.
+.LP
+\fBEma_Init\fP calls Ema_Init() with the mode argument
+\fBEMAC_MODE_NONE\fP.
+.SH OPERANDS
+.LP
+Any arguments passed to Ema_Init will be passed to the Ema_Init()
+function in the \fIargv\fP array.
+.SH RETURN VALUE
+\fBtkEMA_Init\fP returns no assignable value; however, if it detects
+an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Init() in Chapter EMA of the Modeler Manual
+.SH BUGS
+Does not allow for passing any alternate EMAC_MODE arguments to Ema_Init().
+(However these are rarely necessary, and TCL error handling obviates the
+need for several of them at any rate.)

@@ -1,0 +1,25 @@
+.\"$Id: Vos_Textlist_Append.n,v 1.1 1999/05/08 19:31:26 prog Exp $	TN
+.TH Vos_Textlist_Append n "$Id: Vos_Textlist_Append.n,v 1.1 1999/05/08 19:31:26 prog Exp $"
+.SH NAME
+Vos_Textlist_Append \- Append a String to a Textlist
+.SH SYNOPSIS
+.B Vos_Textlist_Append
+textlist_id string
+.SH DESCRIPTION
+.LP
+The
+\fBVos_Textlist_Append\fP
+command is used to wrap the Opnet library Vos_Textlist_Append()
+function.
+It will append the given string to the textlist.
+.SH OPERANDS
+.LP
+\fBtextlist_id\fP is a Textlist ID such as the one returned from
+\fBVos_Textlist_Create\fP.
+.SH RETURN VALUE
+\fBVos_Textlist_Append\fP returns no assignable value
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Vos_Textlist_Append() somewhere in the Modeler Manual
+.SH BUGS
+None Known

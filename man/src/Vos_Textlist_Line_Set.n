@@ -1,0 +1,29 @@
+.\"$Id: Vos_Textlist_Line_Set.n,v 1.1 1999/05/08 19:31:28 prog Exp $	TN
+.TH Vos_Textlist_Line_Set n "$Id: Vos_Textlist_Line_Set.n,v 1.1 1999/05/08 19:31:28 prog Exp $"
+.SH NAME
+Vos_Textlist_Line_Set \- Set the Nth line of the Given Textlist
+.SH SYNOPSIS
+.B Vos_Textlist_Line_Set
+textlist_id n line_string
+.SH DESCRIPTION
+.LP
+The
+\fBVos_Textlist_Line_Set\fP
+command is used to wrap the Opnet library Vos_Textlist_Line_Set()
+function.
+It will set the Nth line of the given Textlist to the given string.
+.SH OPERANDS
+.LP
+\fBtextlist_id\fP is the Textlist ID of the Textlist from which to get the
+line.
+.LP
+\fBn\fP is the number of the line to get.
+.LP
+\fBline_string\fP is the string to use as the Nth line.
+.SH RETURN VALUE
+\fBVos_Textlist_Line_Set\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Vos_Textlist_Line_Set() somewhere in the Modeler Manual
+.SH BUGS
+None Known

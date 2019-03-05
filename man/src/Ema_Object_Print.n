@@ -1,0 +1,37 @@
+.\"$Id: Ema_Object_Print.n,v 1.2 2001/06/12 21:08:00 ted Exp $	TN
+.TH Ema_Object_Print n "$Id: Ema_Object_Print.n,v 1.2 2001/06/12 21:08:00 ted Exp $"
+.SH NAME
+Ema_Object_Print \- Print an Object to Standard Output or a Tcl result string
+.SH SYNOPSIS
+.B Ema_Object_Print
+model_id object_id [tclresult]
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Object_Print\fP
+command is used to wrap the Opnet EMA library Ema_Object_Print()
+function.
+It will write the attributes of the given object to standard output
+or to a Tcl result string.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is the EMA ID of the model containing the object.
+.LP
+\fBobject_id\fP is the EMA ID of the object to be printed.
+.LP
+\fBtclresult\fP is an optional argument whose presence
+triggers \fBEma_Object_Print\fP to return its results as
+a Tcl string rather than writing them to stdout.
+This argument is a flag and its value is unexamined.
+.SH RETURN VALUE
+\fBEma_Object_Print\fP returns no assignable value
+unless \fBtclresult\fP is present in which case it
+returns a Tcl string.
+.LP
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Object_Print() in Chapter EMA of the Modeler Manual
+.SH BUGS
+Allowing the results to be returned in a string
+instead of appearing on stdout requires some ugly
+diddling at the C level.

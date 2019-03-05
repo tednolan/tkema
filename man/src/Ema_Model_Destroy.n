@@ -1,0 +1,24 @@
+.\"$Id: Ema_Model_Destroy.n,v 1.1 1999/05/08 19:31:20 prog Exp $	TN
+.TH Ema_Model_Destroy n "$Id: Ema_Model_Destroy.n,v 1.1 1999/05/08 19:31:20 prog Exp $"
+.SH NAME
+Ema_Model_Destroy \- Destroy an EMA Model
+.SH SYNOPSIS
+.B Ema_Model_Destroy
+model_id
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Destroy\fP
+command is used to wrap the Opnet EMA library Ema_Model_Destroy()
+function.
+It will destroy the given EMA model.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is the EMA ID of the model to be destroyed.
+.SH RETURN VALUE
+\fBEma_Model_Destroy\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Destroy() in Chapter EMA of the Modeler Manual
+.SH BUGS
+None Known

@@ -1,0 +1,28 @@
+.\"$Id: Vos_Textlist_Line_Get.n,v 1.1 1999/05/08 19:31:27 prog Exp $	TN
+.TH Vos_Textlist_Line_Get n "$Id: Vos_Textlist_Line_Get.n,v 1.1 1999/05/08 19:31:27 prog Exp $"
+.SH NAME
+Vos_Textlist_Line_Get \- Get the Nth line of the Given Textlist
+.SH SYNOPSIS
+.B Vos_Textlist_Line_Get
+textlist_id n
+.SH DESCRIPTION
+.LP
+The
+\fBVos_Textlist_Line_Get\fP
+command is used to wrap the Opnet library Vos_Textlist_Line_Get()
+function.
+It will return a string representing the Nth line of
+the given Textlist.
+.SH OPERANDS
+.LP
+\fBtextlist_id\fP is the Textlist ID of the Textlist from which to get the
+line.
+.LP
+\fBn\fP is the number of the line to get.
+.SH RETURN VALUE
+On success \fBVos_Textlist_Line_Get\fP returns a string.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Vos_Textlist_Line_Get() somewhere in the Modeler Manual
+.SH BUGS
+None Known

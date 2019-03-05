@@ -1,0 +1,27 @@
+.\"$Id: Ema_Model_Attr_Nth.n,v 1.1 1999/05/08 19:31:18 prog Exp $	TN
+.TH Ema_Model_Attr_Nth n "$Id: Ema_Model_Attr_Nth.n,v 1.1 1999/05/08 19:31:18 prog Exp $"
+.SH NAME
+Ema_Model_Attr_Nth \- Get the Name of the Nth Attribute of a Model
+.SH SYNOPSIS
+.B Ema_Model_Attr_Nth
+model_id index
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Attr_Nth\fP
+command is used to wrap the Opnet EMA library Ema_Model_Attr_Nth()
+function to return the name of the \fInth\fP attribute of a model.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is an EMA model identifier, for example, one returned by
+\fBEma_Model_Read\fP.
+.LP
+\fBindex\fP is an integer specifying the ordinal position of the attribute
+whose name is being queried.
+.SH RETURN VALUE
+\fBEma_Model_Attr_Nth\fP returns a string giving the argument name.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Attr_Nth() in Chapter EMA of the Modeler Manual
+.SH BUGS
+None known

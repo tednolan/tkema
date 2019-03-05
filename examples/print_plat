@@ -1,0 +1,23 @@
+#!/usr/local/bin/wish -f
+#
+#
+#lappend auto_path /usr/local/src/SRI/NETWARSB2/lib
+lappend auto_path ./lib
+package require Tkema
+
+Ema_Init
+
+set model_name [lindex $argv 0]
+set platform_name [lindex $argv 1]
+
+set model_id [Ema_Model_Read MOD_NETWORK $model_name]
+set nmobile [Ema_Model_Num_Objects $model_id OBJ_NT_SUBNET_MOB]
+for {set i 0} { $i < $nmobile} {incr i} {
+	set subnet [Ema_Object_Nth $model_id OBJ_NT_SUBNET_MOB $i]
+	set name [Ema_Object_Attr_Get $model_id $subnet \
+		"name" EMAC_STRING COMP_CONTENTS ]
+	if { [string compare $name $platform_name ] == 0} {
+		Ema_Object_Print $model_id $subnet
+	}
+}
+exit

@@ -1,0 +1,25 @@
+.\"$Id: Ema_Model_Create.n,v 1.1 1999/05/08 19:31:19 prog Exp $	TN
+.TH Ema_Model_Create n "$Id: Ema_Model_Create.n,v 1.1 1999/05/08 19:31:19 prog Exp $"
+.SH NAME
+Ema_Model_Create \- Create a New Model
+.SH SYNOPSIS
+.B Ema_Model_Create
+model_type
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Create\fP
+command is used to wrap the Opnet EMA library Ema_Model_Create()
+function.
+It will create a new EMA model of the given type.
+.SH OPERANDS
+.LP
+\fBmodel_type\fP is a string designating the EMA model type macro
+(ie MOD_CARTO, MOD_NETWORK).
+.SH RETURN VALUE
+\fBEma_Model_Create\fP returns the EMA ID of the new model.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Create() in Chapter EMA of the Modeler Manual
+.SH BUGS
+None Known

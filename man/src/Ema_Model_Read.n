@@ -1,0 +1,28 @@
+.\"$Id: Ema_Model_Read.n,v 1.1 1999/05/08 19:31:20 prog Exp $	TN
+.TH Ema_Model_Read n "$Id: Ema_Model_Read.n,v 1.1 1999/05/08 19:31:20 prog Exp $"
+.SH NAME
+Ema_Model_Read \- Read a Model from a File
+.SH SYNOPSIS
+.B Ema_Model_Read
+model_type model_name
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Read\fP
+command is used to wrap the Opnet EMA library Ema_Model_Read()
+function.
+It will read an EMA model of the given type from the given file.
+.SH OPERANDS
+.LP
+\fBmodel_type\fP is the EMA type macro for the model to be read (ie MOD_CARTO).
+.LP
+\fBmodel_name\fP is a string designating the base name of the file to
+read the model from.
+(Standard OPNET path processing is done.)
+.SH RETURN VALUE
+\fBEma_Model_Read\fP returns an EMA model ID for the new model.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Read() in Chapter EMA of the Modeler Manual
+.SH BUGS
+It would be nice to be able to turn off OPNET path processing.

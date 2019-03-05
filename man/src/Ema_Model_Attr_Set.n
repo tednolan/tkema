@@ -1,0 +1,41 @@
+.\"$Id: Ema_Model_Attr_Set.n,v 1.2 2001/06/11 18:42:07 ted Exp $
+.TH Ema_Model_Attr_Set n "$Id"
+.SH NAME
+Ema_Model_Attr_Set \- Set Model Attributes
+.SH SYNOPSIS
+.B Ema_Model_Attr_Set
+model_id attr_name attr_component [index] value ...
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Attr_Set\fP
+command is used to wrap the Opnet EMA library Ema_Model_Attr_Set()
+function.  It will set the value of the given component of the given
+attributes.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is an EMA model identifier, for example, one returned by
+\fBEma_Model_Read\fP.
+.LP
+\fBattr_name\fP is a string giving the name of the attribute to be set.
+.LP
+\fBattr_component\fP is a string giving the EMA component macro (ie
+COMP_CONTENTS, COMP_ARRAY_CONTENTS etc).
+.LP
+\fBindex\fP is an optional argument which specifies a sub argument to
+any components (such as COMP_ARRAY_CONTENTS) which require one.
+.LP
+\fBvalue\fP is the value to be assigned to the attribute.
+.LP
+\fBattr_name\fP, \fBattr_component\fP, \fBindex\fP, and \fBvalue\fP
+may be repeated as many times as necessary up to a generous internal limit.
+.SH RETURN VALUE
+\fBEma_Model_Attr_Set\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Attr_Set() in Chapter EMA of the Modeler Manual
+.SH BUGS
+Although the previous limitation on \fBEma_Model_Attr_Set\fP
+wherein it could only set one attribute per call has been lifted,
+the internal implementation still makes multiple calls to 
+Ema_Model_Attr_Set() if more than one attribute is specified.

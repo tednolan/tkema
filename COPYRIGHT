@@ -1,0 +1,15 @@
+$Id: COPYRIGHT,v 1.1 2001/07/16 17:54:10 ted Exp $
+
+This package is TkEma 2.0 and was written by Ted Nolan and is
+copyrighted by SRI International.
+
+This version of TkEma is OpenSource, and permission is given for all
+uses both non-commercial and commercial, including, but not limited to,
+using TkEma in commercial products, modifying the source to TkEma, and
+re-distributing TkEma, provided that this copyright file is cited.
+Future releases of TkEma (if any) may have other copyright provisions.
+
+This software is provided totally without support and with no warranty,
+specific or implied.  Under no circumstances will Ted Nolan or SRI
+International be responsible for any damages or claims resulting from
+the use of this package.

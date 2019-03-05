@@ -1,0 +1,20 @@
+The Makefile in this directory is intended to build the Tcl tkema extension
+on either Solaris or Windows.
+
+Solaris:
+
+	gmake clean
+	gmake
+
+Windows
+	make clean
+	make
+
+The windows environment "supported" is Mingw, not cygnus.
+
+Building with Microsoft Visual C was previously done in the cygnus
+environment with the 'setup' and 'Makefile.win32' files.  It could
+probably be updated to work with current VC & Tcl versions fairly
+easily, but has not been.
+
+Ted

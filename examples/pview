@@ -1,0 +1,504 @@
+#! /usr/local/bin/wish -f
+#
+#	@(#)pview	1.4	05/22/98	Ted Nolan
+#
+
+#
+# Adjust this line to reflect the location of the shared object library
+# for the TkEMA package
+#
+#lappend auto_path /usr/local/src/SRI/NETWARSB2/lib
+lappend auto_path ../lib
+package require Tkema
+
+#
+# Support procs
+#
+
+#
+# Extract the C code from the model and store it in a directory
+# (This is done by execing proc_dump)
+#
+proc proc_dump {} {
+
+	global myname
+	catch {exec proc_dump $myname}
+}
+
+#
+# Open a process model for display.
+# If a .pr.m is given, strip it off before handing off to load_model
+#
+proc open_model {fname} {
+
+	global canvas
+
+	regsub -all {\.pr\.m} $fname {} fname
+
+	set model [file tail $fname]
+
+	load_model $model
+}
+
+
+#
+# Read in the process model and set up a list of states and a list of
+# transitions
+#
+proc load_model {model_name} {
+
+	global state_list
+	global trans_list
+	global model_id
+	global canvas
+	global myname
+
+	set model_id [Ema_Model_Read MOD_PROCESS $model_name]
+	set myname $model_name
+
+	#
+	# get states
+	#
+	set state_list [get_states $model_id]
+
+	#
+	# get transitions
+	#
+	set trans_list [get_trans $model_id]
+
+	draw_model $model_id $state_list $trans_list
+}
+
+
+#
+# Either print the displayed process model, or
+# save it as an EPS file called model_name.eps
+#
+proc printit {mode} {
+	global canvas
+	global myname
+
+	set tfile /tmp/ped.[pid].eps
+
+	#
+	# Create a black rectangle behind all objects to mimic
+	# the black screen background
+	#
+	set x [lindex [$canvas configure -width] end]
+	set y [lindex [$canvas configure -height] end]
+	incr x -1
+	incr y -1
+	$canvas create rectangle 0 0 $x $y -fill black -tag desktop
+	$canvas lower desktop
+
+	#
+	# Find the smallest bounding box for all objects (except the rectangle)
+	#
+	$canvas addtag printable all
+	$canvas dtag desktop printable
+	set bbox [$canvas bbox printable]
+	puts "Bbox $bbox"
+	set x1 [lindex $bbox 0]
+	set y1 [lindex $bbox 1]
+	set x2 [lindex $bbox 2]
+	set y2 [lindex $bbox 3]
+	set h [expr $y2 - $y1 + 1]
+	set w [expr $x2 - $x1 + 1]
+
+	$canvas delete desktop
+	$canvas postscript -colormode color -x $x1 -y $y1 -height $h -width $w -file $tfile
+
+	# kill the rectangle
+	#$canvas delete desktop
+
+	switch $mode {
+		print {
+			#
+			# Replace lpr with your favorite PostScript print cmd
+			#
+			catch {exec /usr/local/bin/lpr $tfile}
+			file delete $tfile
+		}
+		eps {
+			file copy -force $tfile ${myname}.eps
+			file delete $tfile
+		}
+		default {error "Unknown printit option $mode"}
+	}
+
+}
+
+#
+# Create a mapping between Opnet's colors and RGB colors
+#
+proc init_color {} {
+
+	global opnet_colors
+
+	#
+	# These are from opnet_constants.h
+	#
+	set opnet_colors(0) 	"#000"
+	set opnet_colors(1) 	"#005"
+	set opnet_colors(2) 	"#00a"
+	set opnet_colors(3) 	"#00f"
+	set opnet_colors(4) 	"#050"
+	set opnet_colors(5) 	"#055"
+	set opnet_colors(6) 	"#05a"
+	set opnet_colors(7) 	"#05f"
+	set opnet_colors(8) 	"#0a0"
+	set opnet_colors(9) 	"#0a5"
+	set opnet_colors(10) 	"#0aa"
+	set opnet_colors(11) 	"#0af"
+	set opnet_colors(12) 	"#0f0"
+	set opnet_colors(13) 	"#0f5"
+	set opnet_colors(14) 	"#0fa"
+	set opnet_colors(15) 	"#0ff"
+	set opnet_colors(16) 	"#500"
+	set opnet_colors(17) 	"#505"
+	set opnet_colors(18) 	"#50a"
+	set opnet_colors(19) 	"#50f"
+	set opnet_colors(20) 	"#550"
+	set opnet_colors(21) 	"#555"
+	set opnet_colors(22) 	"#55a"
+	set opnet_colors(23) 	"#55f"
+	set opnet_colors(24) 	"#5a0"
+	set opnet_colors(25) 	"#5a5"
+	set opnet_colors(26) 	"#5aa"
+	set opnet_colors(27) 	"#5af"
+	set opnet_colors(28) 	"#5f0"
+	set opnet_colors(29) 	"#5f5"
+	set opnet_colors(30) 	"#5fa"
+	set opnet_colors(31) 	"#5ff"
+	set opnet_colors(32) 	"#a00"
+	set opnet_colors(33) 	"#a05"
+	set opnet_colors(34) 	"#a0a"
+	set opnet_colors(35) 	"#a0f"
+	set opnet_colors(36) 	"#a50"
+	set opnet_colors(37) 	"#a55"
+	set opnet_colors(38) 	"#a5a"
+	set opnet_colors(39) 	"#a5f"
+	set opnet_colors(40) 	"#aa0"
+	set opnet_colors(41) 	"#aa5"
+	set opnet_colors(42) 	"#aaa"
+	set opnet_colors(43) 	"#aaf"
+	set opnet_colors(44) 	"#af0"
+	set opnet_colors(45) 	"#af5"
+	set opnet_colors(46) 	"#afa"
+	set opnet_colors(47) 	"#aff"
+	set opnet_colors(48) 	"#f00"
+	set opnet_colors(49) 	"#f05"
+	set opnet_colors(50) 	"#f0a"
+	set opnet_colors(51) 	"#f0f"
+	set opnet_colors(52) 	"#f50"
+	set opnet_colors(53) 	"#f55"
+	set opnet_colors(54) 	"#f5a"
+	set opnet_colors(55) 	"#f5f"
+	set opnet_colors(56) 	"#fa0"
+	set opnet_colors(57) 	"#fa5"
+	set opnet_colors(58) 	"#faa"
+	set opnet_colors(59) 	"#faf"
+	set opnet_colors(60) 	"#ff0"
+	set opnet_colors(61) 	"#ff5"
+	set opnet_colors(62) 	"#ffa"
+	set opnet_colors(63) 	"#fff"
+}
+
+#
+# Find all the states in a process model
+#
+proc get_states {model_id} {
+
+	set num_state [Ema_Model_Num_Objects $model_id OBJ_PR_STATE]
+
+	for {set i 0} {$i < $num_state} {incr i 1} {
+
+		set state [Ema_Object_Nth $model_id OBJ_PR_STATE $i]
+
+		set sname [Ema_Object_Attr_Get $model_id $state \
+			"name"  EMAC_STRING  COMP_CONTENTS ]
+
+		global state_array$i
+		upvar 0 state_array$i ar
+		set ar(name) $sname
+
+		set ar(state_obj) $state
+
+		set status [Ema_Object_Attr_Get $model_id $state \
+			"status"  EMAC_INTEGER  COMP_TOGGLE]
+		set ar(status) $status
+
+		set position [Ema_Object_Attr_Get $model_id $state \
+			"position"  EMAC_INTEGER  COMP_CONTENTS]
+		set ar(position) $position
+
+		set ar(x) [Ema_Object_Attr_Get $model_id $ar(position) \
+			"x" EMAC_DOUBLE COMP_CONTENTS]
+
+		set ar(y) [Ema_Object_Attr_Get $model_id $ar(position) \
+			"y" EMAC_DOUBLE COMP_CONTENTS]
+
+		set initial [Ema_Object_Attr_Get $model_id $state \
+			"initial"  EMAC_INTEGER  COMP_TOGGLE]
+		set ar(initial) $initial
+
+		lappend state_list state_array$i
+	}
+
+	return $state_list
+
+}
+
+
+
+#
+# Find all the transitions in a process model
+#
+proc get_trans {model_id} {
+	
+	set transitions [list]
+
+	set num_tran [Ema_Model_Num_Objects $model_id OBJ_PR_TRANS]
+
+	for {set i 0} { $i < $num_tran} {incr i 1} {
+
+		global trans_array$i
+		upvar 0 trans_array$i tr
+
+		set tran [Ema_Object_Nth $model_id OBJ_PR_TRANS $i]
+		set tr(trans_obj) $tran
+	
+		set name [Ema_Object_Attr_Get $model_id $tran \
+			"name" EMAC_STRING COMP_CONTENTS]
+		set tr(name) $name
+	
+		set condition [Ema_Object_Attr_Get $model_id $tran \
+			"condition" EMAC_STRING COMP_CONTENTS]
+		set tr(condition) $condition
+	
+		set dest_state [Ema_Object_Attr_Get $model_id $tran \
+			"dest state" EMAC_INTEGER COMP_CONTENTS]
+		set tr(dest_state) $dest_state
+	
+		set src_state [Ema_Object_Attr_Get $model_id $tran \
+			"src state" EMAC_INTEGER COMP_CONTENTS]
+		set tr(src_state) $src_state
+	
+		set drawing_style [Ema_Object_Attr_Get $model_id $tran \
+			"drawing style" EMAC_INTEGER COMP_TOGGLE]
+		set tr(drawing_style) $drawing_style
+	
+		set color [Ema_Object_Attr_Get $model_id $tran \
+			"color" EMAC_INTEGER COMP_CONTENTS]
+		set tr(color) $color
+	
+		for {set j 0} { $j < [Ema_Object_Attr_Get $model_id $tran \
+			"path" EMAC_INTEGER COMP_ARRAY_SIZE]} {incr j 1} {
+	
+			lappend tr(path) [Ema_Object_Attr_Get $model_id $tran \
+				"path" EMAC_INTEGER COMP_ARRAY_CONTENTS $j]
+		}
+	
+		set label_pos [Ema_Object_Attr_Get $model_id $tran \
+			"label pos" EMAC_INTEGER COMP_CONTENTS]
+		set tr(label_pos) $label_pos
+	
+		lappend transitions trans_array$i
+	}
+
+	return $transitions
+
+}
+
+
+#
+# Set up File and (minimal!) Help menus
+#
+proc create_menu {} {
+	menu .menubar
+	. config -menu .menubar
+
+	set file_menu [menu .menubar.file]
+	.menubar add cascade -label File -menu .menubar.file
+	set help_menu [menu .menubar.help]
+	.menubar add cascade -label Help -menu .menubar.help
+
+	$file_menu add command -label "Explode model.." -command {proc_dump}
+	$file_menu add command -label "Print model.." -command {printit print}
+	$file_menu add command -label "Save model EPS.." -command {printit eps}
+	$file_menu add command -label Quit -command exit
+
+	$help_menu add command -label "About Pview" \
+		-command {tk_messageBox -message "Pview @(#)pview	1.4 05/22/98 Ted Nolan" \
+			-type ok}
+
+}
+
+#
+# Draw the states & transitions
+#
+proc draw_model {model_id state_list trans_list} {
+
+	foreach st $state_list {
+		global $st
+		upvar 0 $st state
+
+		set name $state(name)
+		set status $state(status)
+		set initial $state(initial)
+		set x [Ema_Object_Attr_Get $model_id  $state(position) \
+			"x" EMAC_DOUBLE COMP_CONTENTS]
+		set y [Ema_Object_Attr_Get $model_id  $state(position) \
+			"y" EMAC_DOUBLE COMP_CONTENTS]
+		
+		draw_state $st $x $y $name $status $initial
+	}
+
+	foreach tr $trans_list {
+		global $tr
+		upvar 0 $tr trans
+
+		set name $trans(name)
+		set condition $trans(condition)
+		set dest_state $trans(dest_state)
+		set src_state $trans(src_state)
+		set drawing_style $trans(drawing_style)
+		set color $trans(color)
+		set path $trans(path)
+		set lab_x [Ema_Object_Attr_Get $model_id $trans(label_pos) \
+			"x" EMAC_DOUBLE COMP_CONTENTS]
+		set lab_y [Ema_Object_Attr_Get $model_id $trans(label_pos) \
+			"y" EMAC_DOUBLE COMP_CONTENTS]
+
+		draw_trans $tr $condition $drawing_style $color \
+			$path $lab_x $lab_y $trans(name)
+	}
+}
+
+#
+# Draw a state
+#
+proc draw_state {state x y name status initial} {
+
+	global canvas
+	global $state
+	upvar 0 $state ar
+
+
+	#
+	# trim name to 7 chars
+	#
+	set name [string range $name 0 6]
+
+	set tlx [expr $x - 30]
+	set tly [expr $y - 30]
+	set brx [expr $x + 30]
+	set bry [expr $y + 30]
+
+	set rtlx [expr $x -24]
+	set rtly [expr $y - 6]
+	set rbrx [expr $x + 24]
+	set rbry [expr $y + 6]
+
+	set atlx [expr $x - 26]
+	set atly [expr $y - 26]
+	set abrx [expr $x + 26]
+	set abry [expr $y + 26]
+
+	set fill_color red
+	if { $status == 1} {
+		set fill_color green
+	}
+
+	set ar(canvas_obj) [$canvas create oval $tlx $tly $brx $bry \
+		-fill $fill_color -tag pstate]
+	$canvas create arc  $atlx $atly $abrx $abry -start -270 -extent 180 \
+		-outline black -style arc
+	$canvas create arc  $atlx $atly $abrx $abry -start -90 -extent 180 \
+		-outline pink -style arc
+	$canvas create rectangle $rtlx $rtly $rbrx $rbry -fill black
+	$canvas create text $x $y -anchor center -width 54 -text $name \
+		-fill white -font {courier 8 bold}
+
+	if {$initial == 1 } {
+		set x1 [expr $x - 60]
+		set x2 [expr $x - 30]
+		$canvas create line $x1 $y $x2 $y -width 8 -arrow last \
+			-fill green -tag initial_arrow
+		}
+
+}
+
+#
+# Draw a transition
+#
+proc draw_trans {trans condition drawing_style color path lab_x lab_y name} {
+	
+	global canvas
+	global opnet_colors
+	global model_id
+	global $trans
+
+	upvar 0 $trans tr
+
+	set linecmd "$canvas create line "
+
+	for {set i 0} {$i < [llength $path]} {incr i 1} {
+		set x [Ema_Object_Attr_Get $model_id [lindex $path $i] \
+			"x" EMAC_DOUBLE COMP_CONTENTS]
+		set y [Ema_Object_Attr_Get $model_id [lindex $path $i] \
+			"y" EMAC_DOUBLE COMP_CONTENTS]
+
+		append linecmd "$x $y "
+	}
+
+	append linecmd "-width 2 "
+	append linecmd "-arrow last -smooth true -joinstyle round -fill "
+	append linecmd "$opnet_colors($color) -tag \"$name transition\""
+	set tr(canvas_tr_obj) [eval $linecmd]
+
+	if { [string length $condition] > 0 } {
+
+		set tr(canvas_txt_obj) [$canvas create text $lab_x $lab_y \
+			-anchor center \
+			-text "($condition)" \
+			-tag "$name tr_lab" \
+			-fill $opnet_colors($color) -font {courier 8 bold}]
+		}
+
+
+}
+
+#############################################################################
+#                                                                           #
+# This is the actual start of execution for pview.  Up to this point, we    #
+# have simply been defining support procedures.                             #
+#                                                                           #
+#############################################################################
+
+#
+# Set up a mapping between Opnet colors and TK's rgb colors.
+#
+init_color
+
+#
+# Initialize the TkEMA package
+#
+Ema_Init
+
+#
+# Create main menus
+#
+create_menu
+ 
+#
+# Create canvas to draw in
+#
+canvas .c -height 800 -width 1024 -background black
+pack .c -side top -fill both -expand true
+set canvas .c
+
+#
+# Display the process model given as our command line argument
+#
+open_model [lindex $argv 0]

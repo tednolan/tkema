@@ -1,0 +1,12 @@
+#! /usr/local/bin/wish -f
+set channel [open foo.sdf r]
+
+while { [gets $channel line] >= 0} {
+	if { [string range $line 0 0] == "#" } {
+		continue
+	}
+	scan $line "%s %s %s %s" opfac plat_name lon lat
+	puts "$opfac $plat_name $lon $lat"
+}
+close $channel
+exit

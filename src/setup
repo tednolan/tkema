@@ -1,0 +1,34 @@
+# Root of Visual Developer Studio Common files.
+VSCommonDir=G:\\vs6
+export VSCommonDir
+
+#
+# Root of Visual Developer Studio installed files.
+#
+MSDevDir=G:\\vs6\\msdev98
+export MSDevDir
+
+#
+# Root of Visual C++ installed files.
+#
+MSVCDir=G:\\VC98
+export MSVCDir
+
+#
+#VcOsDir is used to help create either a Windows 95 or Windows NT specific path.
+#
+VcOsDir=WINNT
+export VcOsDir
+
+#
+echo Setting environment for using Microsoft Visual C++ tools.
+#
+
+PATH="`cygpath -u $MSDevDir`/BIN:`cygpath -u $MSVCDir`/BIN:`cygpath -u $VSCommonDir`/TOOLS/$VcOsDir:`cygpath -u $VSCommonDir`/TOOLS:$PATH"
+export PATH
+
+INCLUDE="$MSVCDir\\ATL\\INCLUDE;$MSVCDir\\INCLUDE;$MSVCDir\\MFC\\INCLUDE;$INCLUDE"
+export INCLUDE
+
+LIB="$MSVCDir\\LIB;$MSVCDir\\MFC\\LIB;g:\\opnet\\7.0.B\\sys\\pc_intel_win32\\lib;g:\\tcl832\\lib;$LIB"
+export LIB

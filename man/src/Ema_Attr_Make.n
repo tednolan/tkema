@@ -1,0 +1,38 @@
+.\"$Id: Ema_Attr_Make.n,v 1.1 1999/05/08 19:31:16 prog Exp $	TN
+.TH Ema_Attr_Make n "$Id: Ema_Attr_Make.n,v 1.1 1999/05/08 19:31:16 prog Exp $"
+.SH NAME
+Ema_Attr_Make \- Make an Attribute Object
+.SH SYNOPSIS
+.B Ema_Attr_Make
+model_id attr_name attr_type units default_val
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Attr_Make\fP
+command does not wrap any specific OPNET EMA function.
+It is used to create an attribute object suitable for passing to
+Ema_Object_Attr_Add and Ema_Object_Prom_Attr_Set and thus lower the
+pain threshold for those commands.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is the EMA model identifier for the model into which to create
+the properties object.
+.LP
+\fBattr_name\fP is a string designating the \fIpublic name\fP attribute
+of the properties object.
+I believe that this is never used for anything.
+.LP
+\fBattr_type\fP is a string giving the type of the value of the
+attribute (ie EMAC_INTEGER).
+.LP
+\fBunits\fP is a string giving the units of the attribute value.
+.LP
+\fBdefault_val\fP is the default value of the attribute.
+.SH RETURN VALUE
+\fBEma_Attr_Make\fP returns the EMA ID of the new properties object.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Attr_Add(), Ema_Prom_Attr_Set() in Chapter EMA of the Modeler Manual
+.SH BUGS
+Not all data types are handled.
+Not all fields of the properties object are made visible.

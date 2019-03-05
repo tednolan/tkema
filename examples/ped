@@ -1,0 +1,1641 @@
+#! /usr/local/bin/wish -f
+#
+#	@(#)ped	1.22	02/12/98	TN
+#	$Id: ped,v 1.3 2000/03/15 17:11:20 prog Exp $	TN
+#
+
+lappend auto_path /netwars/nwb3/lib/tk_packages_sparc
+package require Tkema
+
+#
+# Support procs
+#
+
+proc start_drag_state {state x y canvas } {
+	
+	global $state
+	upvar 0 $state ar
+
+	set bbox [$canvas bbox $ar(canvas_obj) ]
+	$canvas addtag state_move enclosed [lindex $bbox 0] [lindex $bbox 1] \
+		[lindex $bbox 2] [lindex $bbox 3]
+
+}
+
+proc end_drag_state {state x y canvas} {
+	
+	$canvas dtag state_move
+	re_ema_state $state
+
+}
+
+proc drag_state {state x y canvas} {
+
+	global $state
+	upvar 0 $state ar
+
+
+
+	set dx [expr $x - $ar(x)]
+	set dy [expr $y - $ar(y)]
+	set state_drag_x $x
+	set state_drag_y $y
+
+	set dx [ expr floor($dx / 10) * 10]
+	set dy [ expr floor($dy / 10) * 10]
+
+	set ar(x) [expr $ar(x) + $dx]
+	set ar(y) [expr $ar(y) + $dy]
+
+	$canvas move state_move $dx $dy
+
+}
+
+proc open_model {} {
+
+	global canvas
+
+	set fname [tk_getOpenFile -defaultextension ".pr.m" \
+		-filetypes { {{Process Models} {*.pr.m}} } \
+		-parent $canvas \
+		-title "Available Process Models"]
+
+	regsub -all {\.pr\.m} $fname {} fname
+
+	set model [file tail $fname]
+
+	load_model $model
+}
+
+
+proc start_label_drag {trans label x y canvas} {
+
+	global lab_drag_x
+	global lab_drag_y
+
+	set lab_drag_x $x
+	set lab_drag_y $y
+}
+proc label_drag {trans label x y canvas} {
+
+	global $trans
+	global lab_drag_x
+	global lab_drag_y
+	upvar 0 $trans tr
+
+	set dx [expr $x - $lab_drag_x]
+	set dy [expr $y - $lab_drag_y]
+	set lab_drag_x $x
+	set lab_drag_y $y
+
+	$canvas move $label $dx $dy
+}
+
+proc end_label_drag { trans label x y canvas} {
+
+	global model_id
+	global $trans
+	upvar 0 $trans tr
+
+	set label_pos [Ema_Object_Attr_Get $model_id $tr(trans_obj) \
+		"label pos" EMAC_INTEGER COMP_CONTENTS]
+
+	Ema_Object_Attr_Set $model_id $label_pos \
+		"x" EMAC_DOUBLE COMP_CONTENTS $x
+
+	Ema_Object_Attr_Set $model_id $label_pos \
+		"y" EMAC_DOUBLE COMP_CONTENTS $y
+
+	undraw_trans $trans 
+
+	draw_trans $trans $tr(condition) $tr(drawing_style) $tr(color) \
+			$tr(path) $x $y $tr(name)
+}
+	
+proc find_closest_state {x y} {
+
+	global state_list
+
+	set closest 1000000000
+	if { (![info exists state_list]) || ([llength $state_list] == 0) } {
+		tk_messageBox -message \
+			"No states exist!" -type ok
+		return
+	}
+
+	set closest 1000000000
+	set closest_state foo
+
+	foreach state $state_list {
+		global $state
+		upvar 0 $state ar
+		set d [ expr sqrt( (($x - $ar(x)) * ($x - $ar(x))) + \
+			(($y - $ar(y)) * ($y -$ar(y))) ) ]
+
+		if { $d < $closest} {
+			set closest $d
+			set closest_state $state
+		}
+	}
+
+	return $closest_state
+}
+
+proc trans_stroke_begin {canvas x y} {
+	
+	global trans_strokes
+	global trans_start_state
+
+	catch { unset trans_start_state}
+
+	# 
+	# Find the starting state (this may be a bit much..)
+	#
+
+	set trans_start_state [find_closest_state $x $y]
+		
+	catch {unset trans_strokes}
+	set trans_strokes(N) 0
+	set trans_strokes(0) [list $x $y]
+
+}
+
+proc trans_stroke {canvas x y} {
+
+	global trans_strokes
+
+	set coords $trans_strokes($trans_strokes(N))
+	lappend coords $x $y
+	incr trans_strokes(N)
+	set trans_strokes($trans_strokes(N)) [list $x $y]
+	eval {$canvas create line} $coords {-tag trans_segments -fill white}
+}
+
+proc trans_stroke_end {canvas x y} {
+
+	global trans_strokes
+	global new_trans_count
+	global model_id
+	global trans_start_state
+	global trans_list
+
+	if { ! [info exists new_trans_count]} {
+		set new_trans_count 1
+	} else {
+		incr new_trans_count
+	}
+
+	set tname trans_array0
+	for {set i 0} {[lsearch -exact $trans_list trans_array${i}] != -1} \
+		{incr i} {
+		#nothing
+	}
+	set tname trans_array${i}
+
+	#trans_stroke $canvas $x $y
+
+	set coords {}
+
+	$canvas delete trans_segments
+
+	if { $trans_strokes(N) < 10} {
+		tk_messageBox -message \
+			"Too few points!" -type ok
+		return
+	}
+
+	for {set i 0} { $i <= $trans_strokes(N)} {incr i} {
+		append coords $trans_strokes($i) " "
+	}
+
+
+#	set tr_obj [eval {$canvas create line} $coords \
+		" -tag \"$tname transition\" -joinstyle round -smooth true \
+		-arrow last -fill white"]
+
+
+
+	$canvas bind desktop <Button-1> {}
+	$canvas bind desktop <B1-Motion> {}
+	$canvas bind desktop <ButtonRelease-1> {}
+
+	set trans_final_state [find_closest_state $x $y]
+
+	global $tname
+	upvar 0 $tname tr
+
+	#set tr(canvas_tr_obj) $tr_obj
+	set tr(trans_obj) [Ema_Object_Create $model_id OBJ_PR_TRANS]
+	set tr(name) $tname
+	set tr(condition) ""
+	set tr(executive) ""
+	global $trans_final_state
+	upvar 0 $trans_final_state fins
+	set tr(dest_state) $fins(state_obj)
+	global $trans_start_state
+	upvar 0 $trans_start_state ss
+	set tr(src_state) $ss(state_obj)
+	set tr(drawing_style) 1
+	# white
+	set tr(color) 63
+	set lab_x [lindex $coords 0]
+	set lab_y [lindex $coords 1]
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"name" EMAC_STRING COMP_CONTENTS $tr(name)
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"condition" EMAC_STRING COMP_CONTENTS $tr(condition)
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"executive" EMAC_STRING COMP_CONTENTS $tr(executive)
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"dest state" EMAC_INTEGER COMP_CONTENTS $tr(dest_state)
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"src state" EMAC_INTEGER COMP_CONTENTS $tr(src_state)
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"drawing style" EMAC_INTEGER COMP_TOGGLE $tr(drawing_style)
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"color" EMAC_INTEGER COMP_CONTENTS $tr(color)
+
+	set label_pos [Ema_Object_Create $model_id OBJ_PR_POS]
+	set tr(label_pos) $label_pos
+
+	Ema_Object_Attr_Set $model_id $label_pos \
+		"x" EMAC_DOUBLE COMP_CONTENTS $lab_x
+
+	Ema_Object_Attr_Set $model_id $label_pos \
+		"y" EMAC_DOUBLE COMP_CONTENTS $lab_y
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"label pos" EMAC_INTEGER COMP_CONTENTS $label_pos
+
+	set tr(path) [list]
+
+	for {set i 0; set j 0} { $i < [llength $coords] } { incr i 2;incr j} {
+		set x [lindex $coords $i]
+		set y [lindex $coords [expr $i + 1] ]
+
+		set path_pos [Ema_Object_Create $model_id OBJ_PR_POS]
+		Ema_Object_Attr_Set $model_id $path_pos \
+			"x" EMAC_DOUBLE COMP_CONTENTS $x
+		Ema_Object_Attr_Set $model_id $path_pos \
+			"y" EMAC_DOUBLE COMP_CONTENTS $y
+
+		Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+			"path" EMAC_INTEGER COMP_ARRAY_CONTENTS $j $path_pos
+
+		lappend tr(path) $path_pos
+
+	}
+
+	lappend trans_list $tname
+
+	draw_trans $tname $tr(condition) $tr(drawing_style) $tr(color) \
+		$tr(path) $lab_x $lab_y $tr(name)
+
+}
+
+proc new_transition {x y} {
+	global canvas
+
+	$canvas bind desktop <Button-1> {trans_stroke_begin %W %x %y}
+	$canvas bind desktop <B1-Motion> {trans_stroke %W %x %y}
+	$canvas bind desktop <ButtonRelease-1> {trans_stroke_end %W %x %y}
+}
+
+proc end_change_trans_color {trans color} {
+
+	global model_id
+	global $trans
+	upvar 0 $trans tr
+
+	set tr(color) $color
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"color" EMAC_INTEGER COMP_CONTENTS $color
+
+	set labpos  [Ema_Object_Attr_Get $model_id $tr(trans_obj) \
+		"label pos" EMAC_INTEGER COMP_CONTENTS ]
+
+	set lab_x [Ema_Object_Attr_Get $model_id $labpos \
+		"x" EMAC_DOUBLE COMP_CONTENTS]
+
+	set lab_y [Ema_Object_Attr_Get $model_id $labpos \
+		"y" EMAC_DOUBLE COMP_CONTENTS]
+
+	undraw_trans $trans 
+
+	draw_trans $trans $tr(condition) $tr(drawing_style) $tr(color) \
+			$tr(path) $lab_x $lab_y $tr(name)
+}
+proc start_change_trans_color {trans} {
+
+	global $trans
+	global opnet_colors
+	global trans_set_color
+
+	upvar 0 $trans tr
+	set trans_set_color $tr(color)
+
+	set color_tl [toplevel .color_ch]
+	set color_fr [frame $color_tl.fr]
+
+	pack $color_fr -in $color_tl -side left -fill both -expand true
+
+	for {set i 0} { $i < 16} { incr i 1} {
+
+		set new_fr [frame $color_tl.fr.fr${i}]
+		pack $new_fr -in $color_fr -side top -fill both -expand true
+
+		for {set j 0} { $j < 4} { incr j 1} {
+			set index [expr (4 * $i) + $j]
+			set r [radiobutton $color_fr.b${index} \
+				-variable trans_set_color\
+				-text $opnet_colors($index) \
+				-value $index \
+				-foreground $opnet_colors($index)]
+
+			pack $r -in $new_fr -side left -fill both -expand true
+		}
+	}
+
+	set new_fr [frame $color_tl.fr.frdone]
+	pack $new_fr -in $color_fr -side top -fill both -expand true
+
+	set done_but [button $color_fr.done_but -text Done -command \
+		"end_change_trans_color $trans \$trans_set_color; \
+			destroy $color_tl" ]
+	pack $done_but -in $new_fr -side top -expand true
+
+
+
+}
+
+proc end_change_trans_exec {trans toplevel} {
+
+	global model_id
+	global $trans
+	upvar 0 $trans tr
+
+	destroy $toplevel
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"executive" EMAC_STRING COMP_CONTENTS $tr(executive)
+
+}
+
+proc start_change_trans_exec {trans} {
+
+	global $trans
+
+	set exec_tl [toplevel .exec_ch]
+	set exec_fr [frame $exec_tl.fr]
+	set exec_lab [label $exec_fr.lab -text "Executive: " \
+		-anchor w]
+	set exec_ent [entry $exec_fr.ent -textvariable ${trans}(executive) \
+		-relief sunken]
+
+	bind $exec_ent <Return> "end_change_trans_exec $trans $exec_tl"
+
+	pack $exec_fr -in $exec_tl -side left -fill both -expand true
+	pack $exec_lab -in $exec_fr -side left 
+	pack $exec_ent -in $exec_fr -side left 
+
+}
+
+proc end_change_trans_cond {trans toplevel} {
+
+	global model_id
+	global $trans
+	upvar 0 $trans tr
+
+	destroy $toplevel
+
+	undraw_trans $trans
+	#re_ema_state $state
+
+	Ema_Object_Attr_Set $model_id $tr(trans_obj) \
+		"condition" EMAC_STRING COMP_CONTENTS $tr(condition)
+
+	set labpos  [Ema_Object_Attr_Get $model_id $tr(trans_obj) \
+		"label pos" EMAC_INTEGER COMP_CONTENTS ]
+
+	set lab_x [Ema_Object_Attr_Get $model_id $labpos \
+		"x" EMAC_DOUBLE COMP_CONTENTS]
+
+	set lab_y [Ema_Object_Attr_Get $model_id $labpos \
+		"y" EMAC_DOUBLE COMP_CONTENTS]
+
+	draw_trans $trans $tr(condition) $tr(drawing_style) $tr(color) \
+			$tr(path) $lab_x $lab_y $tr(name)
+}
+
+proc start_change_trans_cond {trans} {
+
+	global $trans
+	upvar 0 $trans tr
+
+	set cond_tl [toplevel .cond_ch]
+	set cond_fr [frame $cond_tl.fr]
+	set cond_lab [label $cond_fr.lab -text "Condition: " \
+		-anchor w]
+	set cond_ent [entry $cond_fr.ent -textvariable ${trans}(condition) \
+		-relief sunken]
+
+	bind $cond_ent <Return> "end_change_trans_cond $trans $cond_tl"
+
+	pack $cond_fr -in $cond_tl -side left -fill both -expand true
+	pack $cond_lab -in $cond_fr -side left 
+	pack $cond_ent -in $cond_fr -side left 
+
+}
+
+proc trans_menu_popup {x y canvas} {
+	
+	global trans_list
+
+
+	set trans_canvas_obj [$canvas find closest $x $y 10]
+	set tname [lindex [$canvas gettags $trans_canvas_obj] 0]
+	set found 0
+	foreach trans $trans_list {
+		global $trans
+		upvar 0 $trans tr
+
+		if { $tr(name) == $tname } {
+			set found 1
+			break
+		}
+	}
+
+	if { $found == 0} {
+		tk_messageBox -message \
+			"No transition matches!" -type ok
+		return
+	}
+
+	set m $canvas.trans_men
+	catch {destroy $m} res
+	menu $canvas.trans_men
+
+	$m add command -label "Change Color" \
+		-command "start_change_trans_color $trans"
+
+	$m add command -label "Change Condition" \
+		-command "start_change_trans_cond $trans"
+
+	$m add command -label "Change Executive" \
+		-command "start_change_trans_exec $trans"
+
+	$m add command -label "Delete transition" \
+		-command "undraw_trans $trans; delete_trans $trans"
+
+	tk_popup $m $x $y
+
+
+}
+proc undraw_trans {trans} {
+
+	global canvas
+	global $trans
+
+	upvar 0 $trans tr
+
+	$canvas delete $tr(canvas_tr_obj)
+	$canvas delete $tr(canvas_txt_obj)
+}
+
+proc get_trans_by_state {state} {
+
+	global $state
+	global trans_list
+
+	upvar 0 $state ar
+
+	set hit_list [list]
+
+	foreach trans $trans_list {
+		global $trans
+		upvar 0 $trans tr
+
+		if { $tr(src_state) == $ar(state_obj) } {
+			lappend hit_list $trans
+		} elseif { $tr(dest_state) == $ar(state_obj) } {
+			lappend hit_list $trans
+		}
+	}
+
+	return $hit_list
+}
+
+#
+# Delete a state:
+#	delete the EMA object
+#	remove from the display list
+#	delete any transitions that lead to it
+#
+proc delete_state {state} {
+
+	global model_id
+	global state_list
+	global $state
+	upvar 0 $state ar
+
+	Ema_Object_Destroy $model_id $ar(state_obj)
+
+	set newlist [list]
+
+	foreach s $state_list {
+		if {$state != $s} {
+			lappend newlist $s
+		}
+	}
+
+	set state_list $newlist
+
+	foreach trans [get_trans_by_state $state] {
+		undraw_trans $trans
+		delete_trans $trans
+	}
+
+	undraw_state $state
+	unset $state
+
+}
+
+
+			
+
+
+#
+# Opnet apparently snaps to a 10 pixel grid
+#
+proc new_state {x y} {
+
+	global model_id
+	global state_list
+	global new_state_counter
+
+	set x [ expr floor($x / 10) * 10]
+	set y [ expr floor($y / 10) * 10]
+
+	if { ! [info exists model_id]} {
+		clear_model
+		set model_id [Ema_Model_Create MOD_PROCESS]
+	}
+
+	if { ![info exists new_state_counter] } {
+		set new_state_counter 1
+	} else {
+		incr new_state_counter 1
+	}
+
+	set state_id new_state${new_state_counter}
+
+	lappend state_list $state_id
+	global $state_id
+	upvar 0 $state_id ar
+
+	set ar(state_obj) [Ema_Object_Create $model_id OBJ_PR_STATE]
+	set ar(name) $state_id
+	set ar(enter_execs) [Vos_Textlist_Create]
+	set ar(exit_execs) [Vos_Textlist_Create]
+	set ar(status) 0
+	set ar(position)  [Ema_Object_Create $model_id OBJ_PR_POS]
+	set ar(x) $x
+	set ar(y) $y
+	set ar(initial) 0
+	re_ema_state $state_id
+	draw_state $state_id $ar(x) $ar(y) $ar(name) $ar(status) $ar(initial)
+
+}
+
+proc can_menu_popup {x y canvas} {
+
+
+	set m $canvas.can_men
+	catch {destroy $m} res
+	menu $m
+
+	$m add command -label "New State" \
+		-command "new_state $x $y"
+
+	$m add command -label "New Transition" \
+		-command "new_transition $x $y"
+
+	tk_popup $m $x $y
+
+
+}
+
+proc end_change_state_name {state toplevel} {
+
+	global $state
+	upvar 0 $state ar
+
+	destroy $toplevel
+
+	undraw_state $state
+	re_ema_state $state
+	draw_state $state $ar(x) $ar(y) $ar(name) $ar(status) $ar(initial)
+}
+
+proc start_change_state_name {state} {
+
+	global $state
+
+	set name_tl [toplevel .name_ch]
+	set name_fr [frame $name_tl.fr]
+	set name_lab [label $name_fr.lab -text "Name: " -anchor w]
+	set name_ent [entry $name_fr.ent -textvariable ${state}(name) \
+		-relief sunken]
+
+	bind $name_ent <Return> "end_change_state_name $state $name_tl"
+
+	pack $name_fr -in $name_tl -side left -fill both -expand true
+	pack $name_lab -in $name_fr -side left 
+	pack $name_ent -in $name_fr -side left 
+
+}
+	
+proc undraw_state {state} {
+	
+	global canvas
+	global $state
+	upvar 0 $state ar
+
+	set bbox [$canvas bbox $ar(canvas_obj) ]
+	$canvas addtag goners enclosed [lindex $bbox 0] [lindex $bbox 1] \
+		[lindex $bbox 2] [lindex $bbox 3]
+	set l [$canvas find withtag goners]
+	$canvas delete goners
+
+	if {$ar(initial) == 1} {
+		$canvas delete initial_arrow
+	}
+
+}
+
+
+proc set_state {state attr val} {
+	
+	global $state
+	upvar 0 $state ar
+
+	undraw_state $state
+
+	switch $attr {
+		status {
+			if { [string compare $val toggle] == 0} {
+				if { $ar(status) == 1} {
+					set ar(status)  0
+				} else {
+					set ar(status)   1
+				}
+			} else {
+				set ar(status)   $val
+			}
+		}
+		initial {
+			if { [string compare $val toggle] == 0} {
+				if { $ar(initial) == 1} {
+					set ar(initial)  0
+				} else {
+					set ar(initial)   1
+				}
+			} else {
+				set ar(initial)   $val
+			}
+		}
+		default {error "Unknow state attribute $val"}
+	}
+
+	re_ema_state $state
+	draw_state $state $ar(x) $ar(y) $ar(name) $ar(status) $ar(initial)
+}
+
+
+proc state_menu_popup {x y canvas} {
+	
+
+	set state [find_state_by_pos $x $y]
+
+	set m $canvas.state_men
+	catch {destroy $m} res
+	menu $canvas.state_men
+
+	$m add command -label "Change Name" \
+		-command "start_change_state_name $state"
+
+	$m add command -label "Toggle Forced" \
+		-command "set_state $state status toggle"
+
+	$m add command -label "Toggle Initial" \
+		-command "set_state $state initial toggle"
+
+	$m add command -label "Delete State" \
+		-command "delete_state $state"
+
+	tk_popup $m $x $y
+
+
+}
+
+proc save_model_textlist {chan tfile textlist attr} {
+	
+	global model_id
+
+	if { [gets $chan line] >= 0} {
+		unset line
+		return
+	}
+
+
+	catch {close $chan} line
+
+	set fp [open $tfile r]
+
+	set newlist [Vos_Textlist_Create]
+	while { [gets $fp line] >= 0} {
+		Vos_Textlist_Append $newlist $line
+		#puts $line
+	}
+	close $fp
+
+	file delete $tfile
+
+	#
+	# Nope, the EMA lib will destroy it when you re-ema
+	#Vos_Textlist_Destroy $textlist
+
+	#
+	# change foo_bar to "foo bar"
+	#
+	regsub -all {_} $attr { } attr
+
+	Ema_Model_Attr_Set $model_id \
+		$attr EMAC_INTEGER COMP_CONTENTS $newlist
+
+}
+
+proc model_edit {attr} {
+	
+	global model_id
+	global env
+	global myname
+
+	if { ! [info exists myname]} {
+		tk_messageBox -message \
+			"No model loaded!" -type ok
+		return
+	}
+		
+
+	regsub -all {_} $attr { } real_attr
+
+	set textlist [Ema_Model_Attr_Get $model_id \
+		$real_attr EMAC_INTEGER COMP_CONTENTS]
+
+
+	set tfile /tmp/ped_tled.${textlist}.[pid]
+
+	if { [file exists $tfile ] } {
+		tk_messageBox -message \
+			"Already editing $myname \($attr\)" -type ok
+		return 
+	}       
+
+	set count [Vos_Textlist_Line_Count $textlist]
+	set fp [ open $tfile  w 0600]
+
+	for {set i 0} { $i < $count} {incr i 1} {
+		set line [Vos_Textlist_Line_Get $textlist $i]
+		puts $fp $line
+	}
+
+	close $fp
+
+
+	if { [info exists env(EDITOR)] } {
+		set edprog $env(EDITOR)
+	} else {
+		set edprog /usr/bin/vi
+	}
+
+#	exec /usr/openwin/bin/xterm -geometry 80x66 -e $edprog $tfile >/dev/null
+	set cmd "/usr/openwin/bin/xterm -geometry 80x66 -e $edprog $tfile"
+	set pipe [open "|$cmd </dev/null" r]
+	fileevent $pipe readable \
+		"save_model_textlist $pipe $tfile $textlist $attr"
+
+
+	
+}
+#
+# Textlists are a problem, when you assign a textlist, it appears to
+# destroy the current text list, so if you assign the same textlist twice,
+# you get shot in the foot..
+#
+proc re_ema_state {state} {
+
+	global model_id
+	global $state
+	upvar 0 $state ar
+
+	Ema_Object_Attr_Set $model_id $ar(state_obj) \
+		"name" EMAC_STRING COMP_CONTENTS $ar(name)
+
+	set newlist [Vos_Textlist_Copy $ar(enter_execs)]
+	set ar(enter_execs) $newlist
+
+	Ema_Object_Attr_Set $model_id $ar(state_obj) \
+		"enter execs" EMAC_INTEGER COMP_CONTENTS $ar(enter_execs)
+
+	set newlist [Vos_Textlist_Copy $ar(exit_execs)]
+	set ar(exit_execs) $newlist
+
+	Ema_Object_Attr_Set $model_id $ar(state_obj) \
+		"exit execs" EMAC_INTEGER COMP_CONTENTS $ar(exit_execs)
+
+	Ema_Object_Attr_Set $model_id $ar(state_obj) \
+		"status" EMAC_INTEGER COMP_TOGGLE $ar(status)
+
+	Ema_Object_Attr_Set $model_id $ar(state_obj) \
+		"position" EMAC_INTEGER COMP_CONTENTS $ar(position)
+
+	Ema_Object_Attr_Set $model_id $ar(position) \
+		"x" EMAC_DOUBLE COMP_CONTENTS $ar(x)
+
+	Ema_Object_Attr_Set $model_id $ar(position) \
+		"y" EMAC_DOUBLE COMP_CONTENTS $ar(y)
+	
+	Ema_Object_Attr_Set $model_id $ar(state_obj) \
+		"initial" EMAC_INTEGER COMP_TOGGLE $ar(initial)
+
+}
+
+proc save_textlist {chan tfile textlist state index} {
+	
+	#puts "$chan $tfile $textlist $state $index"
+	#puts "in linecount [Vos_Textlist_Line_Count $textlist]"
+	global model_id
+
+	if { [gets $chan line] >= 0} {
+		unset line
+		return
+	}
+
+
+	catch {close $chan} line
+
+	set fp [open $tfile r]
+
+	global $state
+	upvar 0 $state ar
+
+	set newlist [Vos_Textlist_Create]
+	while { [gets $fp line] >= 0} {
+		Vos_Textlist_Append $newlist $line
+		#puts $line
+	}
+	close $fp
+
+	file delete $tfile
+
+	#
+	# Nope, the EMA lib will destroy it when you re-ema
+	#Vos_Textlist_Destroy $textlist
+
+	#puts "$index $newlist"
+	set ar($index) $newlist
+
+	re_ema_state $state
+
+}
+
+proc edit_textlist {state textlist index} {
+	global env
+
+	global $state
+	upvar 0 $state ar
+
+	set tfile /tmp/ped_tled.${state}.${textlist}.${index}.[pid]
+	set count [Vos_Textlist_Line_Count $textlist]
+	if { [file exists $tfile ] } {
+		tk_messageBox -message \
+			"Already editing $ar(name) \($index\)" -type ok
+		return 
+	}       
+
+	set fp [ open $tfile  w 0600]
+
+	for {set i 0} { $i < $count} {incr i 1} {
+		set line [Vos_Textlist_Line_Get $textlist $i]
+		puts $fp $line
+	}
+
+	close $fp
+
+
+	if { [info exists env(EDITOR)] } {
+		set edprog $env(EDITOR)
+	} else {
+		set edprog /usr/bin/vi
+	}
+
+#	exec /usr/openwin/bin/xterm -geometry 80x66 -e $edprog $tfile >/dev/null
+	set cmd "/usr/openwin/bin/xterm -geometry 80x66 -e $edprog $tfile"
+	set pipe [open "|$cmd </dev/null" r]
+	fileevent $pipe readable \
+		"save_textlist $pipe $tfile $textlist $state $index"
+
+}
+
+
+
+proc find_state_by_pos {x y} {
+
+	global state_list
+
+	# evil constant, change later!
+	set radius 29
+
+	foreach state $state_list {
+
+		global $state
+		upvar 0 $state ar
+		set centx $ar(x)
+		set centy $ar(y)
+
+		set d [ expr sqrt( (($x - $centx) * ($x - $centx)) + \
+			(($y - $centy) * ($y -$centy)) ) ]
+
+		if { $d <= $radius } {
+			return $state
+		}
+	}
+
+	error "No state near $x $y!"
+}
+
+
+
+proc edit_state_execs {x y can} {
+	set bbox [$can coords [$can find closest $x $y] ]
+	set boty [lindex $bbox 1]
+	set topy [lindex $bbox 3]
+	set centery [ expr (($topy - $boty) / 2) + $boty]
+
+	set state [find_state_by_pos $x $y]
+	global $state
+	upvar 0 $state ar
+
+	if { $y <= $centery } {
+		#puts "Enter execs $ar(enter_execs)"
+		edit_textlist $state $ar(enter_execs) enter_execs
+	} else {
+		#puts "Exit execs $ar(exit_execs)"
+		edit_textlist $state $ar(exit_execs) exit_execs
+	}
+}
+
+proc get_lb_sel {listbox} {
+
+	set index [$listbox curselection]
+	set sel [$listbox get $index]
+	load_model $sel
+}
+
+proc mod_dirs {} {
+
+	global env
+
+	set ver 4.0
+	set home $env(HOME)
+
+	set env_db [open ${home}/op_admin/env_db${ver} r]
+	set in_dirs 0
+
+	while { [gets $env_db line] >= 0 } {
+	
+		if {$in_dirs == 1} {
+
+			if {[regexp {,} $line] == 0} {
+				set in_dirs 0
+				set line [string trim $line "\t ,"]
+				lappend mod_dirs $line
+				continue
+			}
+
+			set line [string trim $line "\t ,"]
+			lappend mod_dirs  $line
+			continue
+		}
+
+		set res [regexp {(mod_dirs:)(.*)(,)} $line whole key dir comma]
+		if {$res == 1} {
+			set in_dirs 1
+			set dir [string trim $dir "\t "]
+			lappend mod_dirs $dir
+
+			continue
+		}
+	}
+	close $env_db
+
+	foreach i $mod_dirs {
+		foreach j [glob -nocomplain ${i}/{*.pr.m}] {
+			set j [file tail $j]
+			regsub {.pr.m} $j {} j
+			lappend mod_list $j
+		}
+	}
+
+	set mod_list [lsort -ascii -increasing $mod_list]
+	return $mod_list
+
+}
+
+proc model_choice {mod_list} {
+
+	set open_tl [toplevel .open]
+	set open_fr [frame $open_tl.fr]
+	set open_fr2 [frame $open_tl.fr2]
+	set open_lb [listbox $open_tl.open_lb \
+		-yscrollcommand [list $open_fr.yscroll set]]
+	set open_sb [scrollbar $open_fr.yscroll -orient vertical \
+		-command [list $open_lb yview]]
+	set open_ob [button $open_tl.ob -text Open -command \
+		"get_lb_sel $open_lb; destroy $open_tl" ]
+	set open_cb [button $open_tl.cb -text Cancel -command \
+		"destroy $open_tl" ]
+	pack $open_fr $open_fr2 -in $open_tl -side top -fill both -expand true
+	pack $open_lb -in $open_fr -side left -fill both -expand true
+	pack $open_sb -in $open_fr -side left -fill y
+	pack $open_ob -in $open_fr2 -side left -fill x -expand true
+	pack $open_cb -in $open_fr2 -side left -fill x -expand true
+
+	foreach item $mod_list {
+		$open_lb insert end $item
+	}
+}
+
+proc clear_model {} {
+
+	global state_list
+	global trans_list
+	global model_id
+	global canvas
+	global myname
+
+
+	if {[info exists state_list]} {
+		foreach state $state_list {
+			destroy_state $model_id $state
+		}
+	}
+	
+	set state_list [list]
+
+	if {[info exists trans_list]} {
+		foreach trans $trans_list {
+			delete_trans $trans
+		}
+	}
+	set trans_list [list]
+
+	if { [info exists model_id]} {
+		Ema_Model_Destroy $model_id
+		unset model_id
+	}
+
+	set myname tentative
+
+	$canvas delete all
+	set x [lindex [$canvas configure -width] end]
+	set y [lindex [$canvas configure -height] end]
+	incr x -1
+	incr y -1
+	set rect [$canvas create rectangle 0 0 $x $y -fill gray77 -tag desktop]
+	$canvas bind desktop <Button-3> { can_menu_popup %x %y %W}
+}
+
+proc save_model {} {
+
+	global model_id
+	global myname
+
+	if {[info exists myname]} {
+		set newname $myname
+	} else {
+		set newname tentative
+	}
+	set newname [tk_getSaveFile -initialfile $newname]
+	set newname [file tail $newname]
+	regsub {.pr.m$} $newname {} newname
+
+	Ema_Model_Write $model_id $newname
+}
+proc load_model {model_name} {
+
+	global state_list
+	global trans_list
+	global model_id
+	global canvas
+	global myname
+
+	clear_model 
+
+	set model_id [Ema_Model_Read MOD_PROCESS $model_name]
+	set myname $model_name
+
+	#
+	# get states
+	#
+	set state_list [get_states $model_id]
+
+	#
+	# get transitions
+	#
+	set trans_list [get_trans $model_id]
+
+	draw_model $model_id $state_list $trans_list
+}
+
+
+proc printit {} {
+	global canvas
+
+	set tfile /tmp/ped.[pid]
+
+#	set x [lindex [$canvas configure -width] end]
+#	set y [lindex [$canvas configure -height] end]
+#	incr x -1
+#	incr y -1
+#	set rect [$canvas create rectangle 0 0 $x $y -fill black]
+#	$canvas lower $rect
+	$canvas postscript -file $tfile  -rotate true
+	catch {exec /usr/local/bin/lpr $tfile}
+	file delete $tfile
+#	$canvas delete $rect
+
+}
+
+proc init_color {} {
+
+	global opnet_colors
+
+	#
+	# These are from opnet_constants.h
+	#
+	set opnet_colors(0) 	"#000"
+	set opnet_colors(1) 	"#005"
+	set opnet_colors(2) 	"#00a"
+	set opnet_colors(3) 	"#00f"
+	set opnet_colors(4) 	"#050"
+	set opnet_colors(5) 	"#055"
+	set opnet_colors(6) 	"#05a"
+	set opnet_colors(7) 	"#05f"
+	set opnet_colors(8) 	"#0a0"
+	set opnet_colors(9) 	"#0a5"
+	set opnet_colors(10) 	"#0aa"
+	set opnet_colors(11) 	"#0af"
+	set opnet_colors(12) 	"#0f0"
+	set opnet_colors(13) 	"#0f5"
+	set opnet_colors(14) 	"#0fa"
+	set opnet_colors(15) 	"#0ff"
+	set opnet_colors(16) 	"#500"
+	set opnet_colors(17) 	"#505"
+	set opnet_colors(18) 	"#50a"
+	set opnet_colors(19) 	"#50f"
+	set opnet_colors(20) 	"#550"
+	set opnet_colors(21) 	"#555"
+	set opnet_colors(22) 	"#55a"
+	set opnet_colors(23) 	"#55f"
+	set opnet_colors(24) 	"#5a0"
+	set opnet_colors(25) 	"#5a5"
+	set opnet_colors(26) 	"#5aa"
+	set opnet_colors(27) 	"#5af"
+	set opnet_colors(28) 	"#5f0"
+	set opnet_colors(29) 	"#5f5"
+	set opnet_colors(30) 	"#5fa"
+	set opnet_colors(31) 	"#5ff"
+	set opnet_colors(32) 	"#a00"
+	set opnet_colors(33) 	"#a05"
+	set opnet_colors(34) 	"#a0a"
+	set opnet_colors(35) 	"#a0f"
+	set opnet_colors(36) 	"#a50"
+	set opnet_colors(37) 	"#a55"
+	set opnet_colors(38) 	"#a5a"
+	set opnet_colors(39) 	"#a5f"
+	set opnet_colors(40) 	"#aa0"
+	set opnet_colors(41) 	"#aa5"
+	set opnet_colors(42) 	"#aaa"
+	set opnet_colors(43) 	"#aaf"
+	set opnet_colors(44) 	"#af0"
+	set opnet_colors(45) 	"#af5"
+	set opnet_colors(46) 	"#afa"
+	set opnet_colors(47) 	"#aff"
+	set opnet_colors(48) 	"#f00"
+	set opnet_colors(49) 	"#f05"
+	set opnet_colors(50) 	"#f0a"
+	set opnet_colors(51) 	"#f0f"
+	set opnet_colors(52) 	"#f50"
+	set opnet_colors(53) 	"#f55"
+	set opnet_colors(54) 	"#f5a"
+	set opnet_colors(55) 	"#f5f"
+	set opnet_colors(56) 	"#fa0"
+	set opnet_colors(57) 	"#fa5"
+	set opnet_colors(58) 	"#faa"
+	set opnet_colors(59) 	"#faf"
+	set opnet_colors(60) 	"#ff0"
+	set opnet_colors(61) 	"#ff5"
+	set opnet_colors(62) 	"#ffa"
+	set opnet_colors(63) 	"#fff"
+}
+
+proc get_states {model_id} {
+
+set num_state [Ema_Model_Num_Objects $model_id OBJ_PR_STATE]
+
+for {set i 0} {$i < $num_state} {incr i 1} {
+
+	set state [Ema_Object_Nth $model_id OBJ_PR_STATE $i]
+
+	set sname [Ema_Object_Attr_Get $model_id $state \
+		"name"  EMAC_STRING  COMP_CONTENTS ]
+
+	global state_array$i
+	upvar 0 state_array$i ar
+	set ar(name) $sname
+	set obj2state($state) $sname
+
+	set ar(state_obj) $state
+
+	set enter_execs [Ema_Object_Attr_Get $model_id $state \
+		"enter execs"  EMAC_INTEGER  COMP_CONTENTS]
+	set ar(enter_execs) $enter_execs
+
+	set exit_execs [Ema_Object_Attr_Get $model_id $state \
+		"exit execs"  EMAC_INTEGER  COMP_CONTENTS]
+	set ar(exit_execs) $exit_execs
+
+	set status [Ema_Object_Attr_Get $model_id $state \
+		"status"  EMAC_INTEGER  COMP_TOGGLE]
+	set ar(status) $status
+
+	set position [Ema_Object_Attr_Get $model_id $state \
+		"position"  EMAC_INTEGER  COMP_CONTENTS]
+	set ar(position) $position
+
+	set ar(x) [Ema_Object_Attr_Get $model_id $ar(position) \
+		"x" EMAC_DOUBLE COMP_CONTENTS]
+
+	set ar(y) [Ema_Object_Attr_Get $model_id $ar(position) \
+		"y" EMAC_DOUBLE COMP_CONTENTS]
+
+	set initial [Ema_Object_Attr_Get $model_id $state \
+		"initial"  EMAC_INTEGER  COMP_TOGGLE]
+	set ar(initial) $initial
+
+	#lappend state_list $sname
+	lappend state_list state_array$i
+}
+
+return $state_list
+
+}
+
+#
+# Attrs must match get_states !
+#
+proc destroy_state {model_id state} {
+
+	
+	global $state
+	upvar 0 $state ar
+
+
+	set obj $ar(enter_execs)
+	#Vos_Textlist_Destroy $obj
+
+	set obj $ar(exit_execs)
+	#Vos_Textlist_Destroy $obj
+
+	set obj $ar(position)
+	Ema_Object_Destroy $model_id $obj
+
+	set obj $ar(state_obj)
+	Ema_Object_Destroy $model_id $obj
+
+	unset ar
+
+}
+
+
+
+
+proc get_trans {model_id} {
+	
+	set transitions [list]
+
+	set num_tran [Ema_Model_Num_Objects $model_id OBJ_PR_TRANS]
+
+	for {set i 0} { $i < $num_tran} {incr i 1} {
+
+		global trans_array$i
+		upvar 0 trans_array$i tr
+
+		set tran [Ema_Object_Nth $model_id OBJ_PR_TRANS $i]
+		set tr(trans_obj) $tran
+	
+		set name [Ema_Object_Attr_Get $model_id $tran \
+			"name" EMAC_STRING COMP_CONTENTS]
+		set tr(name) $name
+	
+		set condition [Ema_Object_Attr_Get $model_id $tran \
+			"condition" EMAC_STRING COMP_CONTENTS]
+		set tr(condition) $condition
+	
+		set executive [Ema_Object_Attr_Get $model_id $tran \
+			"executive" EMAC_STRING COMP_CONTENTS]
+		set tr(executive) $executive
+	
+		set dest_state [Ema_Object_Attr_Get $model_id $tran \
+			"dest state" EMAC_INTEGER COMP_CONTENTS]
+		set tr(dest_state) $dest_state
+	
+		set src_state [Ema_Object_Attr_Get $model_id $tran \
+			"src state" EMAC_INTEGER COMP_CONTENTS]
+		set tr(src_state) $src_state
+	
+		set drawing_style [Ema_Object_Attr_Get $model_id $tran \
+			"drawing style" EMAC_INTEGER COMP_TOGGLE]
+		set tr(drawing_style) $drawing_style
+	
+		set color [Ema_Object_Attr_Get $model_id $tran \
+			"color" EMAC_INTEGER COMP_CONTENTS]
+		set tr(color) $color
+	
+		for {set j 0} { $j < [Ema_Object_Attr_Get $model_id $tran \
+			"path" EMAC_INTEGER COMP_ARRAY_SIZE]} {incr j 1} {
+	
+			lappend tr(path) [Ema_Object_Attr_Get $model_id $tran \
+				"path" EMAC_INTEGER COMP_ARRAY_CONTENTS $j]
+		}
+	
+		set label_pos [Ema_Object_Attr_Get $model_id $tran \
+			"label pos" EMAC_INTEGER COMP_CONTENTS]
+		set tr(label_pos) $label_pos
+	
+		lappend transitions trans_array$i
+	}
+
+	return $transitions
+
+}
+
+proc delete_trans {trans} {
+
+	global model_id
+	global trans_list
+	global $trans
+	upvar 0 $trans tr
+
+	foreach obj $tr(path) {
+		Ema_Object_Destroy $model_id $obj
+	}
+
+	Ema_Object_Destroy $model_id $tr(label_pos)
+
+	Ema_Object_Destroy $model_id $tr(trans_obj)
+
+	set newlist [list]
+
+	foreach t $trans_list {
+		
+		if {$trans != $t} {
+			lappend newlist $t
+		}
+	}
+
+	set trans_list $newlist
+
+	unset $trans
+}
+
+#
+# Set up menubar
+#
+proc create_menu {} {
+	menu .menubar
+	. config -menu .menubar
+
+	set file_menu [menu .menubar.file]
+	.menubar add cascade -label File -menu .menubar.file
+	set edit_menu [menu .menubar.edit]
+	.menubar add cascade -label Edit -menu .menubar.edit
+	set help_menu [menu .menubar.help]
+	.menubar add cascade -label Help -menu .menubar.help
+
+	#$file_menu add command -label Open -command {model_choice [mod_dirs]}
+	$file_menu add command -label Open -command {open_model}
+	$file_menu add command -label Save -command {save_model}
+	$file_menu add command -label Print -command printit
+	$file_menu add command -label Quit -command exit
+
+	$edit_menu add command -label "State vars" -command {model_edit \
+		"state_vars"}
+	$edit_menu add command -label "Temp vars" -command {model_edit \
+		"temp_vars"}
+	$edit_menu add command -label "Header block" -command {model_edit \
+		"header_block"}
+	$edit_menu add command -label "function block" -command {model_edit \
+		"function_block"}
+	$edit_menu add command -label "diag block" -command {model_edit \
+		"diag_block"}
+	$edit_menu add command -label "termination block" -command {model_edit \
+		"termination_block"}
+	$edit_menu add command -label "child processes" -command {model_edit \
+		"child_processes"}
+	$edit_menu add command -label "ext fileset" -command {model_edit \
+		"ext_fileset"}
+	$edit_menu add command -label "model comments" -command {model_edit \
+		"model_comments"}
+
+	$help_menu add command -label "About Ped" \
+		-command {tk_messageBox -message "Ped $Id: ped,v 1.3 2000/03/15 17:11:20 prog Exp $ Ted Nolan" -type ok}
+
+}
+
+proc draw_model {model_id state_list trans_list} {
+
+	foreach st $state_list {
+		global $st
+		upvar 0 $st state
+
+		set name $state(name)
+		set status $state(status)
+		set initial $state(initial)
+		set x [Ema_Object_Attr_Get $model_id  $state(position) \
+			"x" EMAC_DOUBLE COMP_CONTENTS]
+		set y [Ema_Object_Attr_Get $model_id  $state(position) \
+			"y" EMAC_DOUBLE COMP_CONTENTS]
+		
+		draw_state $st $x $y $name $status $initial
+	}
+
+	foreach tr $trans_list {
+		global $tr
+		upvar 0 $tr trans
+
+		set name $trans(name)
+		set condition $trans(condition)
+		set executive $trans(executive)
+		set dest_state $trans(dest_state)
+		set src_state $trans(src_state)
+		set drawing_style $trans(drawing_style)
+		set color $trans(color)
+		set path $trans(path)
+		set lab_x [Ema_Object_Attr_Get $model_id $trans(label_pos) \
+			"x" EMAC_DOUBLE COMP_CONTENTS]
+		set lab_y [Ema_Object_Attr_Get $model_id $trans(label_pos) \
+			"y" EMAC_DOUBLE COMP_CONTENTS]
+
+		draw_trans $tr $condition $drawing_style $color \
+			$path $lab_x $lab_y $trans(name)
+	}
+}
+
+proc draw_state {state x y name status initial} {
+
+	global canvas
+	global $state
+	upvar 0 $state ar
+
+# trim name to 7 chars
+
+	set name [string range $name 0 6]
+#	set tlx [expr $x - 28]
+#	set tly [expr $y - 28]
+#	set brx [expr $x + 28]
+#	set bry [expr $y + 28]
+	set tlx [expr $x - 30]
+	set tly [expr $y - 30]
+	set brx [expr $x + 30]
+	set bry [expr $y + 30]
+
+	set rtlx [expr $x -24]
+	set rtly [expr $y - 6]
+	set rbrx [expr $x + 24]
+	set rbry [expr $y + 6]
+
+	set atlx [expr $x - 26]
+	set atly [expr $y - 26]
+	set abrx [expr $x + 26]
+	set abry [expr $y + 26]
+
+	set fill_color red
+	if { $status == 1} {
+		set fill_color green
+	}
+
+	set ar(canvas_obj) [$canvas create oval $tlx $tly $brx $bry \
+		-fill $fill_color -tag pstate]
+	$canvas create arc  $atlx $atly $abrx $abry -start -270 -extent 180 \
+		-outline black -style arc
+	$canvas create arc  $atlx $atly $abrx $abry -start -90 -extent 180 \
+		-outline pink -style arc
+	$canvas create rectangle $rtlx $rtly $rbrx $rbry -fill black
+	$canvas create text $x $y -anchor center -width 54 -text $name \
+		-fill white -font {courier 8 bold}
+
+	if {$initial == 1 } {
+		set x1 [expr $x - 60]
+		set x2 [expr $x - 30]
+		$canvas create line $x1 $y $x2 $y -width 8 -arrow last \
+			-fill white -tag initial_arrow
+		}
+
+	$canvas bind $ar(canvas_obj) <Button-1> \
+		{edit_state_execs %x %y %W}
+	$canvas bind $ar(canvas_obj) <Button-2> \
+		"start_drag_state $state %x %y %W"
+	$canvas bind $ar(canvas_obj) <B2-Motion> \
+		"drag_state $state %x %y %W"
+	$canvas bind $ar(canvas_obj) <ButtonRelease-2> \
+		"end_drag_state $state %x %y %W"
+	$canvas bind $ar(canvas_obj) <Button-3> \
+		{state_menu_popup %x %y %W}
+}
+
+proc draw_trans {trans condition drawing_style color path lab_x lab_y name} {
+	
+	global canvas
+	global opnet_colors
+	global model_id
+	global $trans
+
+	upvar 0 $trans tr
+
+	set linecmd "$canvas create line "
+
+	for {set i 0} {$i < [llength $path]} {incr i 1} {
+		set x [Ema_Object_Attr_Get $model_id [lindex $path $i] \
+			"x" EMAC_DOUBLE COMP_CONTENTS]
+		set y [Ema_Object_Attr_Get $model_id [lindex $path $i] \
+			"y" EMAC_DOUBLE COMP_CONTENTS]
+
+		append linecmd "$x $y "
+	}
+
+	append linecmd "-width 2 "
+	append linecmd "-arrow last -smooth true -joinstyle round -fill "
+	append linecmd "$opnet_colors($color) -tag \"$name transition\""
+	set tr(canvas_tr_obj) [eval $linecmd]
+	$canvas bind transition <Button-3> {trans_menu_popup %x %y %W}
+
+	set tr(canvas_txt_obj) [$canvas create text $lab_x $lab_y \
+		-anchor center \
+		-text "($condition)" \
+		-tag "$name tr_lab" \
+		-fill $opnet_colors($color) -font {courier 8 bold}]
+	$canvas bind $tr(canvas_txt_obj) <Button-2> \
+		"start_label_drag $trans $tr(canvas_txt_obj) %x %y %W"
+	$canvas bind $tr(canvas_txt_obj) <B2-Motion> \
+		"label_drag $trans $tr(canvas_txt_obj) %x %y %W"
+	$canvas bind $tr(canvas_txt_obj) <ButtonRelease-2> \
+		"end_label_drag $trans $tr(canvas_txt_obj) %x %y %W"
+
+
+}
+#
+# Main prog
+#
+init_color
+#Ema_Init -no_env_db -mod_dirs .
+Ema_Init
+
+#
+# Create main menus
+#
+create_menu
+ 
+#
+# Create canvas to draw in
+#
+canvas .c -height 800 -width 1024 -background black
+pack .c -side top -fill both -expand true
+set canvas .c
+
+set x [lindex [$canvas configure -width] end]
+set y [lindex [$canvas configure -height] end]
+incr x -1
+incr y -1
+set rect [$canvas create rectangle 0 0 $x $y -fill gray77 -tag desktop]
+#$canvas lower $rect
+$canvas bind desktop <Button-3> { can_menu_popup %x %y %W}

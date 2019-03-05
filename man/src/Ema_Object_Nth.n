@@ -1,0 +1,31 @@
+.\"$Id: Ema_Object_Nth.n,v 1.1 1999/05/08 19:31:24 prog Exp $	TN
+.TH Ema_Object_Nth n "$Id: Ema_Object_Nth.n,v 1.1 1999/05/08 19:31:24 prog Exp $"
+.SH NAME
+Ema_Object_Nth \- Return the Nth Object of a Given Type
+.SH SYNOPSIS
+.B Ema_Object_Nth
+model_id object_type n
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Object_Nth\fP
+command is used to wrap the Opnet EMA library Ema_Object_Nth()
+function.
+It will return the Nth object of the specified type in the model.
+model.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is the EMA ID of the model containing the object.
+.LP
+\fBobject_type\fP is an EMA type macro (ie OBJ_NT_NODE_FIXED).
+.LP
+\fBn\fP is an integer specifying the ordinal number of the object among
+others of its type.
+be moved.
+.SH RETURN VALUE
+On success \fBEma_Object_Nth\fP returns an EMA object ID.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Object_Nth() in Chapter EMA of the Modeler Manual
+.SH BUGS
+None Known

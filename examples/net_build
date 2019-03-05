@@ -1,0 +1,235 @@
+#!/usr/local/bin/wish -f
+#
+#
+#lappend auto_path /usr/local/src/SRI/NETWARSB2/lib
+lappend auto_path ./lib
+package require Tkema
+package require Tclopfac
+
+
+proc make_base_net { sim_name} {
+
+set model_id	[Ema_Model_Create MOD_NETWORK]
+set top		[Ema_Object_Create $model_id OBJ_NT_SUBNET]
+set topview	[Ema_Object_Create $model_id OBJ_NT_SUBNET_VIEW]
+
+set nw 		[Ema_Object_Create $model_id OBJ_NT_SUBNET]
+set nwview 	[Ema_Object_Create $model_id OBJ_NT_SUBNET_VIEW]
+
+#
+# Set attributes for top
+#
+Ema_Object_Attr_Set $model_id $top "name" \
+	EMAC_STRING COMP_CONTENTS "top"
+Ema_Object_Attr_Set $model_id $top "x position" \
+	EMAC_DOUBLE COMP_CONTENTS 0
+Ema_Object_Attr_Set $model_id $top "y position" \
+	EMAC_DOUBLE COMP_CONTENTS 0
+Ema_Object_Attr_Set $model_id $top "x span" \
+	EMAC_DOUBLE COMP_CONTENTS 360
+Ema_Object_Attr_Set $model_id $top "y span" \
+	EMAC_DOUBLE COMP_CONTENTS 180
+Ema_Object_Attr_Set $model_id $top "icon name" \
+	EMAC_STRING COMP_CONTENTS_SYMBOL "subnet"
+Ema_Object_Attr_Set $model_id $top "icon name" \
+	EMAC_INTEGER COMP_INTENDED 0
+#
+# 0x7FFFFFFF == EMAC_NULL_OBJ_ID
+#
+Ema_Object_Attr_Set $model_id $top "subnet" \
+	EMAC_INTEGER COMP_CONTENTS 0x7FFFFFFF
+Ema_Object_Attr_Set $model_id $top "view stack" \
+	EMAC_INTEGER COMP_ARRAY_CONTENTS 0 $topview
+Ema_Object_Attr_Set $model_id $top "grid unit" \
+	EMAC_INTEGER COMP_CONTENTS 5
+Ema_Object_Attr_Set $model_id $top "grid division" \
+	EMAC_DOUBLE COMP_CONTENTS 15
+Ema_Object_Attr_Set $model_id $top "grid resolution" \
+	EMAC_DOUBLE COMP_CONTENTS 2.5
+Ema_Object_Attr_Set $model_id $top "grid min x" \
+	EMAC_DOUBLE COMP_CONTENTS -180
+Ema_Object_Attr_Set $model_id $top "grid min y" \
+	EMAC_DOUBLE COMP_CONTENTS 90
+Ema_Object_Attr_Set $model_id $top "grid style" \
+	EMAC_INTEGER COMP_CONTENTS 2
+Ema_Object_Attr_Set $model_id $top "grid color" \
+	EMAC_INTEGER COMP_CONTENTS 21
+Ema_Object_Attr_Set $model_id $top "attribute promotion" \
+	EMAC_INTEGER COMP_TOGGLE 1
+
+#
+# Set attributes for topview
+#
+Ema_Object_Attr_Set $model_id $topview 	"min x" \
+	EMAC_DOUBLE COMP_CONTENTS  -180
+Ema_Object_Attr_Set $model_id $topview 	"min y" \
+	EMAC_DOUBLE COMP_CONTENTS  90
+Ema_Object_Attr_Set $model_id $topview 	"sbar x" \
+	EMAC_DOUBLE COMP_CONTENTS  0
+Ema_Object_Attr_Set $model_id $topview 	"sbar y" \
+	EMAC_DOUBLE COMP_CONTENTS  0
+Ema_Object_Attr_Set $model_id $topview 	"grid step" \
+	EMAC_DOUBLE COMP_CONTENTS  15
+Ema_Object_Attr_Set $model_id $topview 	"resolution" \
+	EMAC_DOUBLE COMP_CONTENTS  2.5
+Ema_Object_Attr_Set $model_id $topview 	"grid style" \
+	EMAC_INTEGER COMP_CONTENTS 2
+Ema_Object_Attr_Set $model_id $topview 	"grid color" \
+	EMAC_INTEGER COMP_CONTENTS 21
+
+#
+# Set attributes for nw
+#
+Ema_Object_Attr_Set $model_id $nw "name" \
+	EMAC_STRING COMP_CONTENTS $sim_name
+Ema_Object_Attr_Set $model_id $nw "x position" \
+	EMAC_DOUBLE COMP_CONTENTS 0
+Ema_Object_Attr_Set $model_id $nw "y position" \
+	EMAC_DOUBLE COMP_CONTENTS 0
+Ema_Object_Attr_Set $model_id $nw "x span" \
+	EMAC_DOUBLE COMP_CONTENTS 360
+Ema_Object_Attr_Set $model_id $nw "y span" \
+	EMAC_DOUBLE COMP_CONTENTS 180
+Ema_Object_Attr_Set $model_id $nw "icon name" \
+	EMAC_STRING COMP_CONTENTS_SYMBOL "subnet"
+Ema_Object_Attr_Set $model_id $nw "icon name" \
+	EMAC_INTEGER COMP_INTENDED 0
+#
+# 0x7FFFFFFF == EMAC_NULL_OBJ_ID
+#
+Ema_Object_Attr_Set $model_id $nw "subnet" \
+	EMAC_INTEGER COMP_CONTENTS $top
+Ema_Object_Attr_Set $model_id $nw "view stack" \
+	EMAC_INTEGER COMP_ARRAY_CONTENTS 0 $nwview
+Ema_Object_Attr_Set $model_id $nw "grid unit" \
+	EMAC_INTEGER COMP_CONTENTS 5
+Ema_Object_Attr_Set $model_id $nw "grid division" \
+	EMAC_DOUBLE COMP_CONTENTS 15
+Ema_Object_Attr_Set $model_id $nw "grid resolution" \
+	EMAC_DOUBLE COMP_CONTENTS 2.5
+Ema_Object_Attr_Set $model_id $nw "grid min x" \
+	EMAC_DOUBLE COMP_CONTENTS -180
+Ema_Object_Attr_Set $model_id $nw "grid min y" \
+	EMAC_DOUBLE COMP_CONTENTS 90
+Ema_Object_Attr_Set $model_id $nw "grid style" \
+	EMAC_INTEGER COMP_CONTENTS 2
+Ema_Object_Attr_Set $model_id $nw "grid color" \
+	EMAC_INTEGER COMP_CONTENTS 21
+Ema_Object_Attr_Set $model_id $nw "attribute promotion" \
+	EMAC_INTEGER COMP_TOGGLE 1
+
+#
+# Set attributes for nwview
+#
+Ema_Object_Attr_Set $model_id $nwview 	"min x" \
+	EMAC_DOUBLE COMP_CONTENTS  -180
+Ema_Object_Attr_Set $model_id $nwview 	"min y" \
+	EMAC_DOUBLE COMP_CONTENTS  90
+Ema_Object_Attr_Set $model_id $nwview 	"sbar x" \
+	EMAC_DOUBLE COMP_CONTENTS  0
+Ema_Object_Attr_Set $model_id $nwview 	"sbar y" \
+	EMAC_DOUBLE COMP_CONTENTS  0
+Ema_Object_Attr_Set $model_id $nwview 	"grid step" \
+	EMAC_DOUBLE COMP_CONTENTS  15
+Ema_Object_Attr_Set $model_id $nwview 	"resolution" \
+	EMAC_DOUBLE COMP_CONTENTS  2.5
+Ema_Object_Attr_Set $model_id $nwview 	"grid style" \
+	EMAC_INTEGER COMP_CONTENTS 2
+Ema_Object_Attr_Set $model_id $nwview 	"grid color" \
+	EMAC_INTEGER COMP_CONTENTS 21
+
+#
+# We start out looking in top
+#
+Ema_Model_Attr_Set $model_id "view subnet" EMAC_INTEGER COMP_CONTENTS $top
+
+#return [list $model_id $top]
+return [list $model_id $nw]
+
+}
+
+
+#
+# There appears to be a bug in 4.0 beta where the "attribute promotion"
+# attribute is not attached to mobile subnets created from EMA
+#
+proc enable_promotion { model_id subnet } {
+
+#
+# EMAC_TOGGLE == 2
+#
+	set promprop [Ema_Object_Create $model_id OBJ_ATTR_PROPS ]
+
+	Ema_Object_Attr_Set $model_id $promprop "default value"\
+		EMAC_INTEGER COMP_CONTENTS_TYPE 2
+	Ema_Object_Attr_Set $model_id $promprop "default value"\
+		EMAC_INTEGER COMP_TOGGLE 1
+	Ema_Object_Attr_Set $model_id $promprop "symbol map list"\
+		EMAC_INTEGER COMP_INTENDED 0
+	Ema_Object_Attr_Set $model_id $promprop "data type"\
+		EMAC_INTEGER COMP_CONTENTS 2
+	Ema_Object_Attr_Set $model_id $promprop "count properties"\
+		EMAC_INTEGER COMP_INTENDED 0
+	Ema_Object_Attr_Set $model_id $promprop "list attribute definitions"\
+		EMAC_INTEGER COMP_INTENDED 0
+
+	Ema_Object_Attr_Add $model_id $subnet "attribute promotion" $promprop
+
+	Ema_Object_Attr_Set $model_id $subnet "attribute promotion" \
+		EMAC_INTEGER COMP_TOGGLE 1
+}
+
+#
+# Start of execution
+#
+
+#
+# Pull off ".sdf" (if any)
+#
+
+set descfile [open [lindex $argv 0]]
+set sim_name [lindex $argv 0]
+regsub {.sdf} $sim_name {} sim_name
+
+Ema_Init
+
+set toplist [make_base_net $sim_name]
+set model_id 	[lindex $toplist 0]
+set top 	[lindex $toplist 1]
+
+
+
+#
+# Create all platforms and place in their initial positions
+#
+puts ""
+puts "Creating platforms.."
+
+while { [gets $descfile line] >= 0} {
+        if { [string range $line 0 0] == "#" } {
+                continue
+        }
+        scan $line "%s %s %s %s" opfac plat_name plat_y plat_x
+
+	puts "	$plat_name"
+
+	set subnet [make_platform $model_id $opfac $top $plat_name]
+
+	enable_promotion $model_id $subnet
+
+	Ema_Object_Store $subnet $plat_name
+
+	Ema_Object_Attr_Set $model_id $subnet "x position" \
+		EMAC_DOUBLE COMP_CONTENTS $plat_x
+	Ema_Object_Attr_Set $model_id $subnet "y position" \
+		EMAC_DOUBLE COMP_CONTENTS $plat_y
+}
+
+
+puts ""
+puts "Writing network model ${sim_name}.."
+
+Ema_Model_Write $model_id $sim_name
+
+close $descfile
+exit

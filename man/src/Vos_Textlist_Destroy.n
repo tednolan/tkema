@@ -1,0 +1,25 @@
+.\"$Id: Vos_Textlist_Destroy.n,v 1.1 1999/05/08 19:31:27 prog Exp $	TN
+.TH Vos_Textlist_Destroy n "$Id: Vos_Textlist_Destroy.n,v 1.1 1999/05/08 19:31:27 prog Exp $"
+.SH NAME
+Vos_Textlist_Destroy \- Destroy the Given Textlist
+.SH SYNOPSIS
+.B Vos_Textlist_Destroy
+textlist_id
+.SH DESCRIPTION
+.LP
+The
+\fBVos_Textlist_Destroy\fP
+command is used to wrap the Opnet library Vos_Textlist_Destroy()
+function.
+It will destroy
+the given Textlist.
+.SH OPERANDS
+.LP
+\fBtextlist_id\fP is the Textlist ID of the Textlist to be destroyed.
+.SH RETURN VALUE
+\fBVos_Textlist_Destroy\fP returns no assignable value.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Vos_Textlist_Destroy() somewhere in the Modeler Manual
+.SH BUGS
+None Known

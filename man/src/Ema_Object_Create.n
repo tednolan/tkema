@@ -1,0 +1,28 @@
+.\"$Id: Ema_Object_Create.n,v 1.1 1999/05/08 19:31:23 prog Exp $	TN
+.TH Ema_Object_Create n "$Id: Ema_Object_Create.n,v 1.1 1999/05/08 19:31:23 prog Exp $"
+.SH NAME
+Ema_Object_Create \- Create an Object
+.SH SYNOPSIS
+.B Ema_Object_Create
+model_id object_type
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Object_Create\fP
+command is used to wrap the Opnet EMA library Ema_Object_Create()
+function.
+It will create an EMA object of the given type.
+.SH OPERANDS
+.LP
+\fBmodel_id\fP is the EMA ID of the model to contain the new object.
+.LP
+\fBobject_type\fP is a string designating the type macro
+of the object to create
+(ie: OBJ_NT_TAP, OBJ_CDS_LINE).
+.SH RETURN VALUE
+\fBEma_Object_Create\fP returns the EMA ID of the new object.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Object_Create() in Chapter EMA of the Modeler Manual
+.SH BUGS
+None Known

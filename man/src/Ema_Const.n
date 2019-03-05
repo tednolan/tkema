@@ -1,0 +1,35 @@
+.\"$Id: Ema_Const.n,v 1.1 1999/05/08 19:31:16 prog Exp $	TN
+.TH Ema_Const n "$Id: Ema_Const.n,v 1.1 1999/05/08 19:31:16 prog Exp $"
+.SH NAME
+Ema_Const \- Interpolate an EMA Constant
+.SH SYNOPSIS
+.B Ema_Const
+const_string
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Const\fP
+command does not wrap any particular OPNET EMA function.
+.LP
+Most tkEMA commands will accept OPNET EMA constant macros where they are
+most often used.
+At times, however, it is necessary to use an EMA constant in an unusual
+place.
+Normally in such a case, no value interpolation would be done.
+However if Ema_Const is invoked in command substitution mode
+(ie: set val  [Ema_Const EMAC_INTEGER]),
+the correct value will be interpolated.
+.SH OPERANDS
+.LP
+\fBconst_string\fP is the string used on the #define line which defines
+the EMA constant at the C level.
+.SH RETURN VALUE
+\fBEma_Const\fP returns the value of the specified EMA constant macro.
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+OPNET include files (.h files)
+.SH BUGS
+Some things that the naive user (myself at one time) believes are constants
+are not.
+In particular, OPNET loves to define macros like COMP_ARRAY_CONTENTS
+and  COMP_DVEC_CONTENTS do not evaluate to constants.

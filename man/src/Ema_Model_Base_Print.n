@@ -1,0 +1,29 @@
+.\"$Id: Ema_Model_Base_Print.n,v 1.2 2001/06/12 21:08:00 ted Exp $	TN
+.TH Ema_Model_Base_Print n "$Id: Ema_Model_Base_Print.n,v 1.2 2001/06/12 21:08:00 ted Exp $"
+.SH NAME
+Ema_Model_Base_Print \- Print All EMA Models to Standard Output or a Tcl string.
+.SH SYNOPSIS
+.B Ema_Model_Base_Print [tclresult]
+.SH DESCRIPTION
+.LP
+The
+\fBEma_Model_Base_Print\fP
+command is used to wrap the Opnet EMA library Ema_Model_Base_Print()
+function.  It will print the contents of all existing EMA models to
+the standard output, or return the same text as a Tcl string.
+.LP
+The value of the optional argument \fBtclresult\fP is not important.
+It's presence or absence is used as a flag to toggle the mode 
+of \fBEma_Model_Base_Print\fP operation.
+.SH RETURN VALUE
+\fBEma_Model_Base_Print\fP returns no assignable value
+unless the optional argument "tclresult" is given
+in which case it returns everything which would have been
+printed to stdout as a Tcl string.
+.LP
+On an error condition, it will throw a TCL_ERROR.
+.SH SEE ALSO
+Ema_Model_Base_Print() in Chapter EMA of the Modeler Manual
+.SH BUGS
+Implementing the Tcl string result requires some ugly
+operations on stdout at the C level.
